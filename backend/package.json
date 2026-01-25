@@ -1,0 +1,23 @@
+{
+  "name": "unified-monitor-backend",
+  "version": "1.0.0",
+  "description": "Unified Monitor Backend - Cloudflare & EdgeOne",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "start:cn": "node src/index.js",
+    "start:en": "EN=true node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "axios": "^1.7.2",
+    "js-yaml": "^4.1.0",
+    "dotenv": "^17.2.3",
+    "tencentcloud-sdk-nodejs-teo": "^4.1.154",
+    "tencentcloud-sdk-nodejs-common": "^4.1.122",
+    "node-cache": "^5.1.2"
+  }
+}

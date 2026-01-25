@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: backend-builder
+    container_name: unified-monitor-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - EN=false
+      - CF_TOKENS=${CF_TOKENS}
+      - CF_ZONES=${CF_ZONES}
+      - CF_DOMAINS=${CF_DOMAINS}
+      - CF_ACCOUNT_NAME=${CF_ACCOUNT_NAME}
+      - EO_SECRET_ID=${EO_SECRET_ID}
+      - EO_SECRET_KEY=${EO_SECRET_KEY}
+      - EO_REGION=${EO_REGION:-ap-guangzhou}
+      - EO_ACCOUNT_NAME=${EO_ACCOUNT_NAME}
+      - SITE_NAME=${SITE_NAME:-Unified Monitor Dashboard}
+      - SITE_ICON=${SITE_ICON}
+    volumes:
+      - ../backend/data:/app/backend/data
+    restart: unless-stopped
+    networks:
+      - unified-monitor-network
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: frontend-builder
+    container_name: unified-monitor-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - unified-monitor-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: unified-monitor-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+    networks:
+      - unified-monitor-network
+
+networks:
+  unified-monitor-network:
+    driver: bridge

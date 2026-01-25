@@ -1,0 +1,9 @@
+accounts:
+  - name: "主账号"
+    secretId: "YOUR_SECRET_ID"
+    secretKey: "YOUR_SECRET_KEY"
+    region: "ap-guangzhou"
+  - name: "副账号"
+    secretId: "YOUR_SECRET_ID_2"
+    secretKey: "YOUR_SECRET_KEY_2"
+    region: "ap-guangzhou"

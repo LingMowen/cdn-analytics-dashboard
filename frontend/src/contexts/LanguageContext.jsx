@@ -1,0 +1,138 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+const LanguageContext = createContext();
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
+
+export const LanguageProvider = ({ children }) => {
+  const [language, setLanguage] = useState('zh');
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') || 'zh';
+    setLanguage(savedLanguage);
+  }, []);
+
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
+
+  const t = (key) => {
+    const translations = {
+      zh: {
+        dashboardTitle: '统一监控仪表盘',
+        loading: '加载中...',
+        loadError: '加载数据失败',
+        retry: '重试',
+        noData: '暂无数据',
+        cloudflare: 'Cloudflare',
+        edgeone: 'EdgeOne',
+        unified: '统一视图',
+        totalRequests: '总请求数',
+        totalTraffic: '总流量',
+        totalBandwidth: '总带宽',
+        totalThreats: '总威胁数',
+        cachedRequests: '缓存请求数',
+        cachedBytes: '缓存流量',
+        cacheHitRate: '缓存命中率',
+        geography: '地理位置',
+        traffic: '流量',
+        bandwidth: '带宽',
+        originPull: '回源分析',
+        requests: '请求数',
+        bytes: '流量',
+        threats: '威胁',
+        country: '国家/地区',
+        last24Hours: '最近24小时',
+        last7Days: '最近7天',
+        last30Days: '最近30天',
+        period: '时间范围',
+        account: '账户',
+        zone: '站点',
+        platform: '平台',
+        autoRefresh: '自动刷新',
+        refresh: '刷新',
+        customRange: '自定义范围',
+        apply: '应用',
+        topUrls: '热门 URL',
+        topReferers: '热门来源',
+        topBrowsers: '热门浏览器',
+        topOS: '热门操作系统',
+        topDevices: '设备类型分布',
+        count: '请求数',
+        ratio: '占比',
+        item: '项目',
+        statusCodeDistribution: '状态码分布',
+        securityStats: '安全统计',
+        intercepts: '拦截次数',
+        edgeFunctions: '边缘函数',
+        functionRequests: '函数请求数',
+        cpuTime: 'CPU 时间'
+      },
+      en: {
+        dashboardTitle: 'Unified Monitor Dashboard',
+        loading: 'Loading...',
+        loadError: 'Failed to load data',
+        retry: 'Retry',
+        noData: 'No data available',
+        cloudflare: 'Cloudflare',
+        edgeone: 'EdgeOne',
+        unified: 'Unified View',
+        totalRequests: 'Total Requests',
+        totalTraffic: 'Total Traffic',
+        totalBandwidth: 'Total Bandwidth',
+        totalThreats: 'Total Threats',
+        cachedRequests: 'Cached Requests',
+        cachedBytes: 'Cached Bytes',
+        cacheHitRate: 'Cache Hit Rate',
+        geography: 'Geography',
+        traffic: 'Traffic',
+        bandwidth: 'Bandwidth',
+        originPull: 'Origin Pull',
+        requests: 'Requests',
+        bytes: 'Bytes',
+        threats: 'Threats',
+        country: 'Country/Region',
+        last24Hours: 'Last 24 Hours',
+        last7Days: 'Last 7 Days',
+        last30Days: 'Last 30 Days',
+        period: 'Period',
+        account: 'Account',
+        zone: 'Zone',
+        platform: 'Platform',
+        autoRefresh: 'Auto Refresh',
+        refresh: 'Refresh',
+        customRange: 'Custom Range',
+        apply: 'Apply',
+        topUrls: 'Top URLs',
+        topReferers: 'Top Referers',
+        topBrowsers: 'Top Browsers',
+        topOS: 'Top OS',
+        count: 'Requests',
+        ratio: 'Ratio',
+        item: 'Item',
+        topDevices: 'Top Devices',
+        statusCodeDistribution: 'Status Code Distribution',
+        securityStats: 'Security Statistics',
+        intercepts: 'Intercepts',
+        edgeFunctions: 'Edge Functions',
+        functionRequests: 'Function Requests',
+        cpuTime: 'CPU Time'
+      }
+    };
+
+    return translations[language][key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, changeLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
