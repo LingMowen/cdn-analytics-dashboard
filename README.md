@@ -86,7 +86,9 @@ cd cdn-analytics-dashboard
 ```bash
 cd docker
 cp .env.example .env
-nano .env  # 编辑配置文件
+# 编辑配置文件
+# Linux/macOS: nano .env
+# Windows: notepad .env 或 code .env
 ```
 
 3. **启动服务**
@@ -114,7 +116,9 @@ cd cdn-analytics-dashboard
 cd backend
 npm install
 cp .env.example .env
-nano .env  # 编辑配置文件
+# 编辑配置文件
+# Linux/macOS: nano .env
+# Windows: notepad .env 或 code .env
 npm run dev
 ```
 
