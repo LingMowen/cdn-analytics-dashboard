@@ -1,7 +1,7 @@
 # Unified Monitor - Cloudflare & EdgeOne 统一监控仪表盘
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/yourusername/unified-monitor)
+[![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/lingmowen/cdn-analytics-dashboard)
 [![Node.js](https://img.shields.io/badge/node.js-18+-green.svg)](https://nodejs.org/)
 
 一个统一的监控仪表盘，支持同时监控 Cloudflare 和 EdgeOne 两个 CDN 平台的流量数据。
@@ -77,8 +77,8 @@
 1. **克隆项目**
 
 ```bash
-git clone https://github.com/yourusername/unified-monitor.git
-cd unified-monitor
+git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+cd cdn-analytics-dashboard
 ```
 
 2. **配置环境变量**
@@ -104,8 +104,8 @@ docker-compose up -d
 1. **克隆项目**
 
 ```bash
-git clone https://github.com/yourusername/unified-monitor.git
-cd unified-monitor
+git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+cd cdn-analytics-dashboard
 ```
 
 2. **安装后端依赖**
@@ -395,7 +395,7 @@ npm run test:e2e
 
 如有问题或建议，请：
 
-- 提交 [Issue](https://github.com/yourusername/unified-monitor/issues)
+- 提交 [Issue](https://github.com/LingMowen/cdn-analytics-dashboard/issues)
 - 发送邮件至 support@example.com
 - 查看 [文档](docs/)
 
