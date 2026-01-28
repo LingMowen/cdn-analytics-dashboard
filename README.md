@@ -420,12 +420,6 @@ npm run test:e2e
 - [ ] 移动端应用
 - [ ] 数据可视化增强
 
-## 联系方式
-
-- 作者: Your Name
-- 邮箱: your.email@example.com
-- 网站: https://yourwebsite.com
-
 ---
 
 **注意**: 请妥善保管您的 API 密钥和 Token，不要将其提交到公共仓库。
