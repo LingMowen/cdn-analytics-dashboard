@@ -205,6 +205,11 @@ export default function EODashboard() {
   const totalBandwidth = bandwidthData.length ? Math.max(...bandwidthData.map(item => item.bandwidth || 0)) : 0;
   const totalOriginPull = originPullData.reduce((acc, item) => acc + (item.requests || 0), 0);
   
+  // Calculate specific traffic metrics
+  // EdgeOne currently does not support l7Flow_inFlux via API, so we set bytesIn to 0 for now.
+  const totalBytesIn = 0; 
+  const peakBandwidthIn = 0;
+  
   // Calculate Cache Hit Rate
   const cacheHitRate = totalRequests > 0 
       ? ((totalRequests - totalOriginPull) / totalRequests * 100).toFixed(2) 
@@ -216,7 +221,14 @@ export default function EODashboard() {
       left: 'center'
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      formatter: (params) => {
+        let res = params[0].name + '<br/>';
+        params.forEach((item) => {
+          res += item.marker + item.seriesName + ': <b>' + formatBytes(item.value) + '</b><br/>';
+        });
+        return res;
+      }
     },
     grid: {
       left: '3%',
@@ -248,7 +260,14 @@ export default function EODashboard() {
       left: 'center'
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      formatter: (params) => {
+        let res = params[0].name + '<br/>';
+        params.forEach((item) => {
+          res += item.marker + item.seriesName + ': <b>' + formatBytes(item.value) + '/s</b><br/>';
+        });
+        return res;
+      }
     },
     grid: {
       left: '3%',
@@ -614,12 +633,66 @@ export default function EODashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up stagger-5">
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold">{t('trafficAnalysis')}</h3>
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-9">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-blue-500/10">
+                <Icons.traffic />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('totalTraffic')}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBytes)}</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-emerald-500/10">
+                <Icons.requests />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('clientRequestTraffic')}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold text-muted-foreground">--</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-11">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-amber-500/10">
+                <Icons.originPull />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('responseTraffic')}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBytes)}</p>
+          </div>
+        </div>
+        <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up stagger-12">
           <div className="p-4 sm:p-6">
             <ReactECharts 
               option={{
                 ...trafficChartOption,
+                series: [
+                  {
+                    name: t('traffic'),
+                    type: 'line',
+                    data: trafficData.map(d => d.bytes),
+                    smooth: true,
+                    itemStyle: { color: '#3b82f6' }, // Blue
+                    lineStyle: { color: '#3b82f6' },
+                    areaStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 0,
+                        y2: 1,
+                        colorStops: [{
+                          offset: 0, color: 'rgba(59, 130, 246, 0.3)' // Blue with opacity
+                        }, {
+                          offset: 1, color: 'rgba(59, 130, 246, 0.05)'
+                        }]
+                      }
+                    }
+                  }
+                ],
                 animationDuration: 1000,
                 animationEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
                 animationDelay: (idx) => idx * 100
@@ -628,11 +701,68 @@ export default function EODashboard() {
             />
           </div>
         </div>
-        <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up stagger-6">
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold">{t('bandwidthAnalysis')}</h3>
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-13">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-blue-500/10">
+                <Icons.bandwidth />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('peakBandwidth')}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-14">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-emerald-500/10">
+                <Icons.requests />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('peakRequestBandwidth')}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold text-muted-foreground">--</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-15">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-amber-500/10">
+                <Icons.originPull />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('peakResponseBandwidth')}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+          </div>
+        </div>
+        <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up stagger-16">
           <div className="p-4 sm:p-6">
             <ReactECharts 
               option={{
                 ...bandwidthChartOption,
+                series: [
+                  {
+                    name: t('bandwidth'),
+                    type: 'line',
+                    data: bandwidthData.map(d => d.bandwidth),
+                    smooth: true,
+                    itemStyle: { color: '#8b5cf6' }, // Purple
+                    lineStyle: { color: '#8b5cf6' },
+                    areaStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 0,
+                        y2: 1,
+                        colorStops: [{
+                          offset: 0, color: 'rgba(139, 92, 246, 0.3)' // Purple with opacity
+                        }, {
+                          offset: 1, color: 'rgba(139, 92, 246, 0.05)'
+                        }]
+                      }
+                    }
+                  }
+                ],
                 animationDuration: 1000,
                 animationEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
                 animationDelay: (idx) => idx * 100

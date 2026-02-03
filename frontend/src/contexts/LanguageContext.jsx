@@ -73,7 +73,16 @@ export const LanguageProvider = ({ children }) => {
         intercepts: '拦截次数',
         edgeFunctions: '边缘函数',
         functionRequests: '函数请求数',
-        cpuTime: 'CPU 时间'
+        cpuTime: 'CPU 时间',
+        trafficAnalysis: '流量分析',
+        bandwidthAnalysis: '带宽分析',
+        clientRequestTraffic: '客户端请求流量',
+        responseTraffic: '响应流量',
+        peakBandwidth: '总带宽峰值',
+        peakRequestBandwidth: '请求带宽峰值',
+        peakResponseBandwidth: '响应带宽峰值',
+        clientRequests: '客户端请求',
+        response: '响应'
       },
       en: {
         dashboardTitle: 'Unified Monitor Dashboard',
@@ -123,7 +132,16 @@ export const LanguageProvider = ({ children }) => {
         intercepts: 'Intercepts',
         edgeFunctions: 'Edge Functions',
         functionRequests: 'Function Requests',
-        cpuTime: 'CPU Time'
+        cpuTime: 'CPU Time',
+        trafficAnalysis: 'Traffic Analysis',
+        bandwidthAnalysis: 'Bandwidth Analysis',
+        clientRequestTraffic: 'Client Request Traffic',
+        responseTraffic: 'Response Traffic',
+        peakBandwidth: 'Peak Bandwidth',
+        peakRequestBandwidth: 'Peak Request Bandwidth',
+        peakResponseBandwidth: 'Peak Response Bandwidth',
+        clientRequests: 'Client Requests',
+        response: 'Response'
       }
     };
 
