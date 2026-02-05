@@ -76,7 +76,7 @@ export function loadCloudflareConfig() {
 }
 
 export function loadEdgeOneConfig() {
-  const config = { accounts: [] };
+  const config = { accounts: [], enabledZones: [], disabledZones: [] };
 
   // Check if EO_SECRET_ID and EO_SECRET_KEY are set and not placeholder values
   if (process.env.EO_SECRET_ID && process.env.EO_SECRET_KEY) {
@@ -103,20 +103,30 @@ export function loadEdgeOneConfig() {
     accountIndex++;
   }
 
-  // Only load from file if no accounts configured via environment variables
-  if (config.accounts.length === 0) {
-    try {
-      const fileConfig = yaml.load(fs.readFileSync(new URL('./edgeone.yml', import.meta.url)));
+  // Load from file (including zone display configuration)
+  try {
+    const fileConfig = yaml.load(fs.readFileSync(new URL('./edgeone.yml', import.meta.url)));
+    
+    // If no accounts from environment, use file accounts
+    if (config.accounts.length === 0 && fileConfig && fileConfig.accounts) {
       // Filter out example accounts with placeholder values
-      if (fileConfig && fileConfig.accounts) {
-        fileConfig.accounts = fileConfig.accounts.filter(acc => {
-          return acc.secretId && acc.secretId !== 'YOUR_SECRET_ID' && acc.secretId !== 'YOUR_SECRET_ID_2';
-        });
-      }
-      return fileConfig;
-    } catch (e) {
-      console.error('Failed to load edgeone.yml:', e.message);
+      fileConfig.accounts = fileConfig.accounts.filter(acc => {
+        return acc.secretId && acc.secretId !== 'YOUR_SECRET_ID' && acc.secretId !== 'YOUR_SECRET_ID_2';
+      });
+      config.accounts = fileConfig.accounts;
     }
+    
+    // Load zone display configuration
+    if (fileConfig) {
+      if (fileConfig.enabledZones) {
+        config.enabledZones = fileConfig.enabledZones;
+      }
+      if (fileConfig.disabledZones) {
+        config.disabledZones = fileConfig.disabledZones;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load edgeone.yml:', e.message);
   }
 
   return config;

@@ -32,6 +32,7 @@ export default function EODashboard() {
   const [customStartDraft, setCustomStartDraft] = useState('');
   const [customEndDraft, setCustomEndDraft] = useState('');
   const [customApplied, setCustomApplied] = useState({ start: '', end: '' });
+  const [zoneConfig, setZoneConfig] = useState({ enabledZones: [], disabledZones: [] });
 
   useEffect(() => {
     fetchZones();
@@ -83,11 +84,36 @@ export default function EODashboard() {
   const fetchZones = async () => {
     try {
       setLoading(true);
-      const data = await edgeoneAPI.getZones();
-      if (data && data.length > 0 && data[0].zones) {
-        setZones(data[0].zones);
-        const preferredZone =
-          data[0].zones.find((z) => z.name && z.name.includes('.')) || data[0].zones[0];
+      // 同时获取配置和站点列表
+      const [configRes, zonesRes] = await Promise.all([
+        edgeoneAPI.getConfig(),
+        edgeoneAPI.getZones()
+      ]);
+      
+      // 保存配置信息
+      if (configRes && configRes.zoneConfig) {
+        setZoneConfig(configRes.zoneConfig);
+      }
+      
+      // 处理多账号站点数据
+      if (zonesRes && zonesRes.length > 0) {
+        const allZones = [];
+        zonesRes.forEach(account => {
+          if (account.zones) {
+            account.zones.forEach(zone => {
+              allZones.push({
+                id: zone.id,
+                name: `${account.account} - ${zone.name}`,
+                account: account.account
+              });
+            });
+          }
+        });
+        
+        setZones(allZones);
+        
+        // 选择优先包含域名的站点
+        const preferredZone = allZones.find((z) => z.name && z.name.includes('.')) || allZones[0];
         setSelectedZone(preferredZone?.id || '');
       }
       setError(null);
@@ -185,6 +211,10 @@ export default function EODashboard() {
     }
   };
 
+  // Debug log to check data structure
+  console.log('DEBUG Dashboard trafficData:', trafficData);
+  console.log('DEBUG Dashboard bandwidthData:', bandwidthData);
+
   const formatBytes = (bytes) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -206,9 +236,9 @@ export default function EODashboard() {
   const totalOriginPull = originPullData.reduce((acc, item) => acc + (item.requests || 0), 0);
   
   // Calculate specific traffic metrics
-  // EdgeOne currently does not support l7Flow_inFlux via API, so we set bytesIn to 0 for now.
-  const totalBytesIn = 0; 
-  const peakBandwidthIn = 0;
+  // Now EdgeOne supports l7Flow_inFlux and l7Flow_inBandwidth via API
+  const totalBytesIn = trafficData.reduce((acc, item) => acc + (item.bytesIn || 0), 0);
+  const peakBandwidthIn = bandwidthData.length ? Math.max(...bandwidthData.map(item => item.bandwidthIn || 0)) : 0;
   
   // Calculate Cache Hit Rate
   const cacheHitRate = totalRequests > 0 
@@ -251,6 +281,14 @@ export default function EODashboard() {
       type: 'line',
       data: trafficData.map(d => d.bytes),
       smooth: true
+    }, {
+      name: t('clientRequestTraffic'),
+      type: 'line', 
+      data: trafficData.map(d => d.bytesIn || 0),
+      smooth: true,
+      lineStyle: {
+        type: 'dashed'
+      }
     }]
   };
 
@@ -290,6 +328,14 @@ export default function EODashboard() {
       type: 'line',
       data: bandwidthData.map(d => d.bandwidth),
       smooth: true
+    }, {
+      name: t('peakRequestBandwidth'),
+      type: 'line',
+      data: bandwidthData.map(d => d.bandwidthIn || 0),
+      smooth: true,
+      lineStyle: {
+        type: 'dashed'
+      }
     }]
   };
 
@@ -491,6 +537,9 @@ export default function EODashboard() {
     );
   }
 
+  // 检查是否有站点过滤配置
+  const hasZoneConfig = zoneConfig.enabledZones.length > 0 || zoneConfig.disabledZones.length > 0;
+
   return (
     <div className="w-full space-y-4 sm:space-y-5 lg:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -652,7 +701,7 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('clientRequestTraffic')}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold text-muted-foreground">--</p>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBytesIn)}</p>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-11">
             <div className="flex items-center gap-2 mb-2">
@@ -722,7 +771,7 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('peakRequestBandwidth')}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold text-muted-foreground">--</p>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(peakBandwidthIn)}/s</p>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-15">
             <div className="flex items-center gap-2 mb-2">
@@ -769,6 +818,118 @@ export default function EODashboard() {
               }} 
               style={{ height: '300px', minHeight: '250px' }} 
             />
+          </div>
+        </div>
+      </div>
+
+      {/* 回源分析 */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold">{t('originPullAnalysis') || '回源分析'}</h3>
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
+                <Icons.originPull />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequests') || '回源请求数'}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(originPullData.reduce((acc, item) => acc + (item.requests || 0), 0))}</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
+                <Icons.traffic />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullTraffic') || '回源流量'}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytesIn || item.bytes || 0), 0))}</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
+                <Icons.bandwidth />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullBandwidth') || '回源带宽'}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidthIn || item.bandwidth || 0)) : 0)}/s</p>
+          </div>
+        </div>
+        <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up">
+          <div className="p-4 sm:p-6">
+            {originPullData.length > 0 ? (
+              <ReactECharts 
+                option={{
+                  title: {
+                    text: t('originPullTrend') || '回源趋势',
+                    left: 'center'
+                  },
+                  tooltip: {
+                    trigger: 'axis',
+                    formatter: (params) => {
+                      let res = params[0].name + '<br/>';
+                      params.forEach((item) => {
+                        res += item.marker + item.seriesName + ': <b>' + formatBytes(item.value) + '</b><br/>';
+                      });
+                      return res;
+                    }
+                  },
+                  grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                  },
+                  xAxis: {
+                    type: 'category',
+                    data: originPullData.map(d => d.timestamp)
+                  },
+                  yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                      formatter: (value) => formatBytes(value)
+                    }
+                  },
+                  series: [
+                     {
+                       name: t('originPullTraffic') || '回源流量',
+                       type: 'line',
+                       data: originPullData.map(d => d.bytesIn || d.bytes || 0),
+                       smooth: true,
+                       itemStyle: { color: '#f97316' },
+                       lineStyle: { color: '#f97316' },
+                       areaStyle: {
+                         color: {
+                           type: 'linear',
+                           x: 0,
+                           y: 0,
+                           x2: 0,
+                           y2: 1,
+                           colorStops: [{
+                             offset: 0, color: 'rgba(249, 115, 22, 0.3)'
+                           }, {
+                             offset: 1, color: 'rgba(249, 115, 22, 0.05)'
+                           }]
+                         }
+                       }
+                     }
+                   ],
+                  animationDuration: 1000,
+                  animationEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                  animationDelay: (idx) => idx * 100
+                }} 
+                style={{ height: '300px', minHeight: '250px' }} 
+              />
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                <div className="text-center">
+                  <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p>{t('noOriginPullData') || '暂无回源数据'}</p>
+                  <p className="text-sm opacity-70 mt-1">{t('noOriginPullDataDesc') || '该站点在选定时间段内没有回源请求'}</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

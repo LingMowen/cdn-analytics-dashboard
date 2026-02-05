@@ -82,7 +82,14 @@ export const LanguageProvider = ({ children }) => {
         peakRequestBandwidth: '请求带宽峰值',
         peakResponseBandwidth: '响应带宽峰值',
         clientRequests: '客户端请求',
-        response: '响应'
+        response: '响应',
+        originPullAnalysis: '回源分析',
+        originPullRequests: '回源请求数',
+        originPullTraffic: '回源流量',
+        originPullBandwidth: '回源带宽',
+        originPullTrend: '回源趋势',
+        noOriginPullData: '暂无回源数据',
+        noOriginPullDataDesc: '该站点在选定时间段内没有回源请求'
       },
       en: {
         dashboardTitle: 'Unified Monitor Dashboard',
@@ -141,7 +148,14 @@ export const LanguageProvider = ({ children }) => {
         peakRequestBandwidth: 'Peak Request Bandwidth',
         peakResponseBandwidth: 'Peak Response Bandwidth',
         clientRequests: 'Client Requests',
-        response: 'Response'
+        response: 'Response',
+        originPullAnalysis: 'Origin Pull Analysis',
+        originPullRequests: 'Origin Pull Requests',
+        originPullTraffic: 'Origin Pull Traffic',
+        originPullBandwidth: 'Origin Pull Bandwidth',
+        originPullTrend: 'Origin Pull Trend',
+        noOriginPullData: 'No Origin Pull Data',
+        noOriginPullDataDesc: 'No origin pull requests for this zone in the selected period'
       }
     };
 

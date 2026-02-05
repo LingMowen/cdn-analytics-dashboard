@@ -7,6 +7,43 @@ const router = express.Router();
 const eoConfig = loadEdgeOneConfig();
 const eoService = new EdgeOneService(eoConfig);
 
+// 根据配置过滤站点
+function filterZones(zones, config) {
+  if (!zones || !Array.isArray(zones)) return zones;
+  
+  const enabledZones = config.enabledZones || [];
+  const disabledZones = config.disabledZones || [];
+  
+  // 如果没有配置，返回所有站点
+  if (enabledZones.length === 0 && disabledZones.length === 0) {
+    return zones;
+  }
+  
+  return zones.filter(zone => {
+    const zoneName = zone.name || zone.ZoneName || '';
+    
+    // 如果在禁用列表中，不显示
+    if (disabledZones.length > 0) {
+      const isDisabled = disabledZones.some(dz => 
+        zoneName.toLowerCase() === dz.toLowerCase() ||
+        zoneName.toLowerCase().includes(dz.toLowerCase())
+      );
+      if (isDisabled) return false;
+    }
+    
+    // 如果启用了白名单，只显示白名单中的站点
+    if (enabledZones.length > 0) {
+      const isEnabled = enabledZones.some(ez => 
+        zoneName.toLowerCase() === ez.toLowerCase() ||
+        zoneName.toLowerCase().includes(ez.toLowerCase())
+      );
+      return isEnabled;
+    }
+    
+    return true;
+  });
+}
+
 router.get('/config', (req, res) => {
   res.json({
     platform: 'edgeone',
@@ -15,7 +52,13 @@ router.get('/config', (req, res) => {
     accounts: eoConfig.accounts.map(acc => ({
       name: acc.name,
       region: acc.region
-    }))
+    })),
+    zoneConfig: {
+      enabledZones: eoConfig.enabledZones || [],
+      disabledZones: eoConfig.disabledZones || [],
+      totalEnabled: (eoConfig.enabledZones || []).length,
+      totalDisabled: (eoConfig.disabledZones || []).length
+    }
   });
 });
 
@@ -30,12 +73,18 @@ router.get('/zones', async (req, res) => {
       }
 
       const zones = await eoService.fetchZones(account);
+      
+      // 转换并过滤站点
+      const mappedZones = zones.map(z => ({
+        id: z.ZoneId,
+        name: z.ZoneName
+      }));
+      
+      const filteredZones = filterZones(mappedZones, eoConfig);
+      
       results.push({
         account: account.name,
-        zones: zones.map(z => ({
-          id: z.ZoneId,
-          name: z.ZoneName
-        }))
+        zones: filteredZones
       });
     }
 
@@ -90,7 +139,12 @@ router.get('/origin-pull', async (req, res) => {
 
     const account = eoConfig.accounts[0];
     const rawData = await eoService.fetchOriginPull(account, zoneId, startTime, endTime, interval);
-    const formattedData = eoService.formatData(rawData);
+    
+    console.log('DEBUG OriginPull rawData:', JSON.stringify(rawData, null, 2));
+    
+    const formattedData = eoService.formatOriginPullData(rawData);
+    
+    console.log('DEBUG OriginPull formatted:', JSON.stringify(formattedData, null, 2));
 
     res.json(formattedData);
   } catch (error) {

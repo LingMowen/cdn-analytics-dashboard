@@ -7,3 +7,23 @@ accounts:
     secretId: "YOUR_SECRET_ID_2"
     secretKey: "YOUR_SECRET_KEY_2"
     region: "ap-guangzhou"
+
+# 站点显示配置
+# enabledZones: 指定要显示的站点列表，默认显示所有站点
+# 如果不配置或配置为空数组，则显示所有站点
+# 配置示例：
+# enabledZones:
+#   - "example.com"
+#   - "subdomain.example.com"
+#
+# disabledZones: 指定要隐藏的站点列表
+# 配置示例：
+# disabledZones:
+#   - "hidden-site.com"
+#
+# 优先级：disabledZones > enabledZones
+# 即：如果一个站点同时在两个列表中，它会被隐藏
+enabledZones: []
+disabledZones:
+  - "default-pages-zone"
+  - "sgstudio2025.xyz"

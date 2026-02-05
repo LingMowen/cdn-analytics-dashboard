@@ -130,7 +130,10 @@ export class EdgeOneService extends BaseService {
       const params = {
         StartTime: formatTime(startTime),
         EndTime: formatTime(endTime),
-        MetricNames: ['l7Flow_outFlux', 'l7Flow_outBandwidth', 'l7Flow_request'], 
+        MetricNames: [
+          'l7Flow_outFlux', 'l7Flow_outBandwidth', 'l7Flow_request',
+          'l7Flow_inFlux', 'l7Flow_inBandwidth'
+        ], 
         ZoneIds: [zoneId]
       };
 
@@ -142,6 +145,10 @@ export class EdgeOneService extends BaseService {
       console.log('DEBUG EdgeOne fetchMetrics params:', JSON.stringify(params));
 
       const data = await client.DescribeTimingL7AnalysisData(params);
+      console.log('DEBUG EdgeOne API Response Data Length:', data.Data ? data.Data.length : 0);
+      if (data.Data && data.Data.length > 0) {
+        console.log('DEBUG EdgeOne API First Record:', JSON.stringify(data.Data[0]));
+      }
       return data.Data || [];
     } catch (error) {
       console.error(`[EdgeOne] fetchMetrics failed for zone ${zoneId}:`, error.message);
@@ -190,7 +197,9 @@ export class EdgeOneService extends BaseService {
       }
 
       const data = await client.DescribeTimingL7OriginPullData(params);
-      return data.Data || [];
+      console.log('DEBUG fetchOriginPull response:', JSON.stringify(data, null, 2));
+      // API returns TimingDataRecords instead of Data
+      return data.TimingDataRecords || [];
     } catch (error) {
       console.error(`[EdgeOne] fetchOriginPull failed for zone ${zoneId}:`, error.message);
       return [];
@@ -349,9 +358,12 @@ export class EdgeOneService extends BaseService {
               mergedData[timestamp] = { timestamp: new Date(timestamp * 1000).toISOString() };
             }
             
-          if (name === 'l7Flow_outFlux' || name === 'l7Flow_outFlux_hy') mergedData[timestamp].bytes = point.Value;
-          if (name === 'l7Flow_outBandwidth' || name === 'l7Flow_outBandwidth_hy') mergedData[timestamp].bandwidth = point.Value;
+          if (name === 'l7Flow_outFlux' || name === 'l7Flow_outFlux_hy' || name === 'l7Flow_Flux') mergedData[timestamp].bytes = point.Value;
+          if (name === 'l7Flow_outBandwidth' || name === 'l7Flow_outBandwidth_hy' || name === 'l7Flow_Bandwidth') mergedData[timestamp].bandwidth = point.Value;
           if (name === 'l7Flow_request' || name === 'l7Flow_request_hy') mergedData[timestamp].requests = point.Value;
+          
+          if (name === 'l7Flow_inFlux' || name === 'l7Flow_inFlux_hy') mergedData[timestamp].bytesIn = point.Value;
+          if (name === 'l7Flow_inBandwidth' || name === 'l7Flow_inBandwidth_hy') mergedData[timestamp].bandwidthIn = point.Value;
         });
         }
       });
@@ -370,9 +382,12 @@ export class EdgeOneService extends BaseService {
             mergedData[timestamp] = { timestamp: new Date(timestamp * 1000).toISOString() };
           }
           
-          if (name === 'l7Flow_outFlux' || name === 'l7Flow_outFlux_hy') mergedData[timestamp].bytes = point.Value;
-          if (name === 'l7Flow_outBandwidth' || name === 'l7Flow_outBandwidth_hy') mergedData[timestamp].bandwidth = point.Value;
+          if (name === 'l7Flow_outFlux' || name === 'l7Flow_outFlux_hy' || name === 'l7Flow_Flux') mergedData[timestamp].bytes = point.Value;
+          if (name === 'l7Flow_outBandwidth' || name === 'l7Flow_outBandwidth_hy' || name === 'l7Flow_Bandwidth') mergedData[timestamp].bandwidth = point.Value;
           if (name === 'l7Flow_request' || name === 'l7Flow_request_hy') mergedData[timestamp].requests = point.Value;
+          
+          if (name === 'l7Flow_inFlux' || name === 'l7Flow_inFlux_hy') mergedData[timestamp].bytesIn = point.Value;
+          if (name === 'l7Flow_inBandwidth' || name === 'l7Flow_inBandwidth_hy') mergedData[timestamp].bandwidthIn = point.Value;
         });
       });
 
@@ -385,5 +400,41 @@ export class EdgeOneService extends BaseService {
       bytes: item.Bytes || 0,
       bandwidth: item.Bandwidth || 0
     }));
+  }
+
+  formatOriginPullData(rawData) {
+    if (!Array.isArray(rawData) || rawData.length === 0) return [];
+
+    console.log('DEBUG formatOriginPullData input:', JSON.stringify(rawData[0], null, 2));
+
+    const mergedData = {};
+
+    // API returns array of TimingDataRecord with TypeKey and TypeValue
+    rawData.forEach(record => {
+      if (record.TypeValue && Array.isArray(record.TypeValue)) {
+        record.TypeValue.forEach(metric => {
+          const name = metric.MetricName;
+          if (metric.Detail) {
+            metric.Detail.forEach(point => {
+              const timestamp = point.Timestamp;
+              if (!mergedData[timestamp]) {
+                mergedData[timestamp] = { timestamp: new Date(timestamp * 1000).toISOString() };
+              }
+              
+              // Origin pull metrics use _hy suffix
+              if (name === 'l7Flow_outFlux_hy') mergedData[timestamp].bytes = point.Value;
+              if (name === 'l7Flow_outBandwidth_hy') mergedData[timestamp].bandwidth = point.Value;
+              if (name === 'l7Flow_request_hy') mergedData[timestamp].requests = point.Value;
+              if (name === 'l7Flow_inFlux_hy') mergedData[timestamp].bytesIn = point.Value;
+              if (name === 'l7Flow_inBandwidth_hy') mergedData[timestamp].bandwidthIn = point.Value;
+            });
+          }
+        });
+      }
+    });
+
+    const result = Object.values(mergedData).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    console.log('DEBUG formatOriginPullData output:', JSON.stringify(result.slice(0, 2), null, 2));
+    return result;
   }
 }
