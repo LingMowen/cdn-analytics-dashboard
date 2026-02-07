@@ -250,6 +250,10 @@ export default function EODashboard() {
       text: t('traffic'),
       left: 'center'
     },
+    legend: {
+      data: [t('trafficTotal') || '总流量', t('trafficRequest') || '请求流量', t('trafficResponse') || '响应流量'],
+      bottom: 0
+    },
     tooltip: {
       trigger: 'axis',
       formatter: (params) => {
@@ -263,7 +267,7 @@ export default function EODashboard() {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '10%',
       containLabel: true
     },
     xAxis: {
@@ -277,18 +281,26 @@ export default function EODashboard() {
       }
     },
     series: [{
-      name: t('traffic'),
+      name: t('trafficTotal') || '总流量',
       type: 'line',
-      data: trafficData.map(d => d.bytes),
-      smooth: true
+      data: trafficData.map(d => (d.bytes || 0) + (d.bytesIn || 0)),
+      smooth: true,
+      itemStyle: { color: '#3b82f6' },
+      lineStyle: { color: '#3b82f6', width: 3 }
     }, {
-      name: t('clientRequestTraffic'),
-      type: 'line', 
+      name: t('trafficRequest') || '请求流量',
+      type: 'line',
       data: trafficData.map(d => d.bytesIn || 0),
       smooth: true,
-      lineStyle: {
-        type: 'dashed'
-      }
+      itemStyle: { color: '#10b981' },
+      lineStyle: { color: '#10b981' }
+    }, {
+      name: t('trafficResponse') || '响应流量',
+      type: 'line',
+      data: trafficData.map(d => d.bytes || 0),
+      smooth: true,
+      itemStyle: { color: '#f59e0b' },
+      lineStyle: { color: '#f59e0b' }
     }]
   };
 
@@ -296,6 +308,10 @@ export default function EODashboard() {
     title: {
       text: t('bandwidth'),
       left: 'center'
+    },
+    legend: {
+      data: [t('bandwidthTotal') || '总带宽', t('bandwidthRequest') || '请求带宽', t('bandwidthResponse') || '响应带宽'],
+      bottom: 0
     },
     tooltip: {
       trigger: 'axis',
@@ -310,7 +326,7 @@ export default function EODashboard() {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '10%',
       containLabel: true
     },
     xAxis: {
@@ -324,18 +340,26 @@ export default function EODashboard() {
       }
     },
     series: [{
-      name: t('bandwidth'),
+      name: t('bandwidthTotal') || '总带宽',
       type: 'line',
-      data: bandwidthData.map(d => d.bandwidth),
-      smooth: true
+      data: bandwidthData.map(d => (d.bandwidth || 0) + (d.bandwidthIn || 0)),
+      smooth: true,
+      itemStyle: { color: '#8b5cf6' },
+      lineStyle: { color: '#8b5cf6', width: 3 }
     }, {
-      name: t('peakRequestBandwidth'),
+      name: t('bandwidthRequest') || '请求带宽',
       type: 'line',
       data: bandwidthData.map(d => d.bandwidthIn || 0),
       smooth: true,
-      lineStyle: {
-        type: 'dashed'
-      }
+      itemStyle: { color: '#10b981' },
+      lineStyle: { color: '#10b981' }
+    }, {
+      name: t('bandwidthResponse') || '响应带宽',
+      type: 'line',
+      data: bandwidthData.map(d => d.bandwidth || 0),
+      smooth: true,
+      itemStyle: { color: '#f59e0b' },
+      lineStyle: { color: '#f59e0b' }
     }]
   };
 
@@ -720,12 +744,12 @@ export default function EODashboard() {
                 ...trafficChartOption,
                 series: [
                   {
-                    name: t('traffic'),
+                    name: t('trafficTotal') || '总流量',
                     type: 'line',
-                    data: trafficData.map(d => d.bytes),
+                    data: trafficData.map(d => (d.bytes || 0) + (d.bytesIn || 0)),
                     smooth: true,
-                    itemStyle: { color: '#3b82f6' }, // Blue
-                    lineStyle: { color: '#3b82f6' },
+                    itemStyle: { color: '#3b82f6' },
+                    lineStyle: { color: '#3b82f6', width: 3 },
                     areaStyle: {
                       color: {
                         type: 'linear',
@@ -734,12 +758,28 @@ export default function EODashboard() {
                         x2: 0,
                         y2: 1,
                         colorStops: [{
-                          offset: 0, color: 'rgba(59, 130, 246, 0.3)' // Blue with opacity
+                          offset: 0, color: 'rgba(59, 130, 246, 0.3)'
                         }, {
                           offset: 1, color: 'rgba(59, 130, 246, 0.05)'
                         }]
                       }
                     }
+                  },
+                  {
+                    name: t('trafficRequest') || '请求流量',
+                    type: 'line',
+                    data: trafficData.map(d => d.bytesIn || 0),
+                    smooth: true,
+                    itemStyle: { color: '#10b981' },
+                    lineStyle: { color: '#10b981' }
+                  },
+                  {
+                    name: t('trafficResponse') || '响应流量',
+                    type: 'line',
+                    data: trafficData.map(d => d.bytes || 0),
+                    smooth: true,
+                    itemStyle: { color: '#f59e0b' },
+                    lineStyle: { color: '#f59e0b' }
                   }
                 ],
                 animationDuration: 1000,
@@ -790,12 +830,12 @@ export default function EODashboard() {
                 ...bandwidthChartOption,
                 series: [
                   {
-                    name: t('bandwidth'),
+                    name: t('bandwidthTotal') || '总带宽',
                     type: 'line',
-                    data: bandwidthData.map(d => d.bandwidth),
+                    data: bandwidthData.map(d => (d.bandwidth || 0) + (d.bandwidthIn || 0)),
                     smooth: true,
-                    itemStyle: { color: '#8b5cf6' }, // Purple
-                    lineStyle: { color: '#8b5cf6' },
+                    itemStyle: { color: '#8b5cf6' },
+                    lineStyle: { color: '#8b5cf6', width: 3 },
                     areaStyle: {
                       color: {
                         type: 'linear',
@@ -804,12 +844,28 @@ export default function EODashboard() {
                         x2: 0,
                         y2: 1,
                         colorStops: [{
-                          offset: 0, color: 'rgba(139, 92, 246, 0.3)' // Purple with opacity
+                          offset: 0, color: 'rgba(139, 92, 246, 0.3)'
                         }, {
                           offset: 1, color: 'rgba(139, 92, 246, 0.05)'
                         }]
                       }
                     }
+                  },
+                  {
+                    name: t('bandwidthRequest') || '请求带宽',
+                    type: 'line',
+                    data: bandwidthData.map(d => d.bandwidthIn || 0),
+                    smooth: true,
+                    itemStyle: { color: '#10b981' },
+                    lineStyle: { color: '#10b981' }
+                  },
+                  {
+                    name: t('bandwidthResponse') || '响应带宽',
+                    type: 'line',
+                    data: bandwidthData.map(d => d.bandwidth || 0),
+                    smooth: true,
+                    itemStyle: { color: '#f59e0b' },
+                    lineStyle: { color: '#f59e0b' }
                   }
                 ],
                 animationDuration: 1000,
@@ -825,33 +881,64 @@ export default function EODashboard() {
       {/* 回源分析 */}
       <div className="space-y-4">
         <h3 className="text-lg font-bold">{t('originPullAnalysis') || '回源分析'}</h3>
+        {/* 第一行：请求相关 */}
         <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
-              <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
-                <Icons.originPull />
+              <div className="icon-wrapper p-1.5 rounded-lg bg-blue-500/10">
+                <Icons.traffic />
               </div>
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequests') || '回源请求数'}</h3>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequestTraffic') || '回源请求流量'}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytes || 0), 0))}</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-blue-500/10">
+                <Icons.requests />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequestCount') || '回源请求数'}</h3>
             </div>
             <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(originPullData.reduce((acc, item) => acc + (item.requests || 0), 0))}</p>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
-              <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-blue-500/10">
+                <Icons.bandwidth />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequestBandwidth') || '回源请求带宽峰值'}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidth || 0)) : 0)}/s</p>
+          </div>
+        </div>
+        {/* 第二行：响应相关 + 缓存命中率 */}
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-emerald-500/10">
                 <Icons.traffic />
               </div>
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullTraffic') || '回源流量'}</h3>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullResponseTraffic') || '回源响应流量'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytesIn || item.bytes || 0), 0))}</p>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytesIn || 0), 0))}</p>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
-              <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-emerald-500/10">
                 <Icons.bandwidth />
               </div>
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullBandwidth') || '回源带宽'}</h3>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullResponseBandwidth') || '回源响应带宽峰值'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidthIn || item.bandwidth || 0)) : 0)}/s</p>
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidthIn || 0)) : 0)}/s</p>
+          </div>
+          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="icon-wrapper p-1.5 rounded-lg bg-amber-500/10">
+                <Icons.cacheHitRate />
+              </div>
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('cacheHitRate') || '缓存命中率'}</h3>
+            </div>
+            <p className="number-display text-xl sm:text-2xl font-bold">{cacheHitRate}%</p>
           </div>
         </div>
         <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up">
@@ -862,6 +949,10 @@ export default function EODashboard() {
                   title: {
                     text: t('originPullTrend') || '回源趋势',
                     left: 'center'
+                  },
+                  legend: {
+                    data: [t('originPullTotal') || '总回源流量', t('originPullRequest') || '回源请求流量', t('originPullResponse') || '回源响应流量'],
+                    bottom: 0
                   },
                   tooltip: {
                     trigger: 'axis',
@@ -876,7 +967,7 @@ export default function EODashboard() {
                   grid: {
                     left: '3%',
                     right: '4%',
-                    bottom: '3%',
+                    bottom: '10%',
                     containLabel: true
                   },
                   xAxis: {
@@ -891,12 +982,12 @@ export default function EODashboard() {
                   },
                   series: [
                      {
-                       name: t('originPullTraffic') || '回源流量',
+                       name: t('originPullTotal') || '总回源流量',
                        type: 'line',
-                       data: originPullData.map(d => d.bytesIn || d.bytes || 0),
+                       data: originPullData.map(d => (d.bytesIn || 0) + (d.bytes || 0)),
                        smooth: true,
                        itemStyle: { color: '#f97316' },
-                       lineStyle: { color: '#f97316' },
+                       lineStyle: { color: '#f97316', width: 3 },
                        areaStyle: {
                          color: {
                            type: 'linear',
@@ -911,6 +1002,22 @@ export default function EODashboard() {
                            }]
                          }
                        }
+                     },
+                     {
+                       name: t('originPullRequest') || '回源请求流量',
+                       type: 'line',
+                       data: originPullData.map(d => d.bytes || 0),
+                       smooth: true,
+                       itemStyle: { color: '#3b82f6' },
+                       lineStyle: { color: '#3b82f6' }
+                     },
+                     {
+                       name: t('originPullResponse') || '回源响应流量',
+                       type: 'line',
+                       data: originPullData.map(d => d.bytesIn || 0),
+                       smooth: true,
+                       itemStyle: { color: '#10b981' },
+                       lineStyle: { color: '#10b981' }
                      }
                    ],
                   animationDuration: 1000,
