@@ -6,6 +6,10 @@
 
 一个统一的监控仪表盘，支持同时监控 Cloudflare 和 EdgeOne 两个 CDN 平台的流量数据。
 
+## 预览
+
+![EdgeOne 监控仪表盘预览](screenshots/dashboard-preview.png)
+
 ## 功能特性
 
 ### 核心功能
