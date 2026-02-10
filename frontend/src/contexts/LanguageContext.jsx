@@ -113,7 +113,22 @@ export const LanguageProvider = ({ children }) => {
         ccManageIntercepts: '管理拦截',
         securityTrend: '安全拦截趋势',
         noOriginPullData: '暂无回源数据',
-        noOriginPullDataDesc: '该站点在选定时间段内没有回源请求'
+        noOriginPullDataDesc: '该站点在选定时间段内没有回源请求',
+        backendNotStarted: '后端服务未启动',
+        backendNotStartedDesc: '请启动后端服务以查看统一视图数据',
+        noSecurityData: '暂无安全数据',
+        noSecurityDataDesc: '该站点在选定时间段内没有安全拦截记录',
+        maxQueryRangeError: '时间范围不能超过 31 天',
+        invalidDateRange: '结束时间必须晚于开始时间',
+        autoGranularity: '自动',
+        '5minGranularity': '5分钟',
+        hourGranularity: '小时',
+        dayGranularity: '天',
+        selectGranularity: '时间粒度',
+        timeGranularity: '时间粒度',
+        minutes: '分钟',
+        hourly: '小时',
+        daily: '天'
       },
       en: {
         dashboardTitle: 'Unified Monitor Dashboard',
@@ -203,7 +218,22 @@ export const LanguageProvider = ({ children }) => {
         ccManageIntercepts: 'Manage Intercepts',
         securityTrend: 'Security Intercept Trend',
         noOriginPullData: 'No Origin Pull Data',
-        noOriginPullDataDesc: 'No origin pull requests for this zone in the selected period'
+        noOriginPullDataDesc: 'No origin pull requests for this zone in the selected period',
+        backendNotStarted: 'Backend Service Not Started',
+        backendNotStartedDesc: 'Please start the backend service to view unified dashboard data',
+        noSecurityData: 'No Security Data',
+        noSecurityDataDesc: 'No security intercept records for this zone in the selected period',
+        maxQueryRangeError: 'Time range cannot exceed 31 days',
+        invalidDateRange: 'End time must be later than start time',
+        autoGranularity: 'Auto',
+        '5minGranularity': '5 Min',
+        hourGranularity: 'Hour',
+        dayGranularity: 'Day',
+        selectGranularity: 'Granularity',
+        timeGranularity: 'Time Granularity',
+        minutes: 'min',
+        hourly: 'Hour',
+        daily: 'Day'
       }
     };
 

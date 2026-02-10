@@ -35,7 +35,8 @@ function AppContent() {
         document.title = data.siteName;
       }
     } catch (err) {
-      console.error("Error fetching config:", err);
+      // 静默处理配置获取错误，避免控制台显示错误信息
+      // 统一视图组件会显示后端未启动的提示
     }
   };
 

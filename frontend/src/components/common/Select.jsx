@@ -226,6 +226,11 @@ export default function Select({
           )}
           
           <div className="custom-select-options">
+            {(label || placeholder) && (
+              <div className="custom-select-header">
+                {label || placeholder}
+              </div>
+            )}
             {filteredOptions().length === 0 ? (
               <div className="custom-select-no-results">
                 没有找到结果

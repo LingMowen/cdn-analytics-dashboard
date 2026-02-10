@@ -27,13 +27,39 @@ export default function EODashboard() {
   const [topDevices, setTopDevices] = useState([]);
   const [statusCodes, setStatusCodes] = useState([]);
   const [securityData, setSecurityData] = useState({});
+  const [securityTimeSeriesData, setSecurityTimeSeriesData] = useState([]);
   const [functionData, setFunctionData] = useState({});
   const [last30DaysTotals, setLast30DaysTotals] = useState({ requests: 0, bytes: 0 });
+  // 环比数据
+  const [momData, setMomData] = useState({
+    requests: { current: 0, previous: 0, change: 0 },
+    bytes: { current: 0, previous: 0, change: 0 },
+    bandwidth: { current: 0, previous: 0, change: 0 },
+    originPull: { current: 0, previous: 0, change: 0 },
+    security: { current: 0, previous: 0, change: 0 },
+    ccRate: { current: 0, previous: 0, change: 0 },
+    ccAcl: { current: 0, previous: 0, change: 0 },
+    ccManage: { current: 0, previous: 0, change: 0 },
+    peakBandwidth: { current: 0, previous: 0, change: 0 },
+    originPullBytes: { current: 0, previous: 0, change: 0 },
+    originPullBandwidth: { current: 0, previous: 0, change: 0 },
+    cacheHitRate: { current: 0, previous: 0, change: 0 },
+    avgResponseTime: { current: 0, previous: 0, change: 0 },
+    avgFirstByteTime: { current: 0, previous: 0, change: 0 }
+  });
   const [period, setPeriod] = useState('last24Hours');
   const [customStartDraft, setCustomStartDraft] = useState('');
   const [customEndDraft, setCustomEndDraft] = useState('');
   const [customApplied, setCustomApplied] = useState({ start: '', end: '' });
+  const [customRangeError, setCustomRangeError] = useState('');
   const [zoneConfig, setZoneConfig] = useState({ enabledZones: [], disabledZones: [] });
+  // 时间粒度：5min 为5分钟，hour 为小时，day 为天
+  const [timeGranularity, setTimeGranularity] = useState('hour');
+
+  // 腾讯云 API 最大查询范围为 31 天
+  const MAX_QUERY_DAYS = 31;
+
+
 
   useEffect(() => {
     fetchZones();
@@ -43,9 +69,28 @@ export default function EODashboard() {
     if (selectedZone) {
       fetchMetrics();
     }
-  }, [selectedZone, refreshTrigger, period, customApplied.start, customApplied.end]);
+  }, [selectedZone, refreshTrigger, period, customApplied.start, customApplied.end, timeGranularity]);
 
   const applyCustomRange = () => {
+    // 验证时间范围不超过 31 天
+    if (customStartDraft && customEndDraft) {
+      const start = new Date(customStartDraft);
+      const end = new Date(customEndDraft);
+      const diffTime = end - start;
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+      if (diffDays > MAX_QUERY_DAYS) {
+        setCustomRangeError(t('maxQueryRangeError') || `时间范围不能超过 ${MAX_QUERY_DAYS} 天`);
+        return;
+      }
+
+      if (diffDays <= 0) {
+        setCustomRangeError(t('invalidDateRange') || '结束时间必须晚于开始时间');
+        return;
+      }
+    }
+
+    setCustomRangeError('');
     setCustomApplied({ start: customStartDraft, end: customEndDraft });
   };
 
@@ -72,13 +117,17 @@ export default function EODashboard() {
       end = now;
     }
 
-    const days = (end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000);
-    const interval = days <= 7 ? 'hour' : 'day';
+    // 计算上一周期的时间范围（环比）
+    const duration = end.getTime() - start.getTime();
+    const prevStart = new Date(start.getTime() - duration);
+    const prevEnd = new Date(end.getTime() - duration);
 
     return {
       startTime: start.toISOString(),
       endTime: end.toISOString(),
-      interval
+      interval: timeGranularity,
+      prevStartTime: prevStart.toISOString(),
+      prevEndTime: prevEnd.toISOString()
     };
   };
 
@@ -128,7 +177,7 @@ export default function EODashboard() {
 
   const fetchMetrics = async () => {
     try {
-      const { startTime, endTime, interval } = getRange();
+      const { startTime, endTime, interval, prevStartTime, prevEndTime } = getRange();
       const now = new Date();
       const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       const startTime30d = last30Days.toISOString();
@@ -148,6 +197,12 @@ export default function EODashboard() {
         edgeoneAPI.getTopAnalysis({ zoneId: selectedZone, metric: 'ccAcl_interceptNum', startTime, endTime }),
         edgeoneAPI.getTopAnalysis({ zoneId: selectedZone, metric: 'ccManage_interceptNum', startTime, endTime }),
         edgeoneAPI.getTopAnalysis({ zoneId: selectedZone, metric: 'function_cpuCostTime', startTime, endTime }),
+        // 环比数据 - 上一周期
+        edgeoneAPI.getMetrics({ zoneId: selectedZone, startTime: prevStartTime, endTime: prevEndTime, interval }),
+        edgeoneAPI.getOriginPull({ zoneId: selectedZone, startTime: prevStartTime, endTime: prevEndTime }),
+        edgeoneAPI.getTopAnalysis({ zoneId: selectedZone, metric: 'ccRate_interceptNum', startTime: prevStartTime, endTime: prevEndTime }),
+        edgeoneAPI.getTopAnalysis({ zoneId: selectedZone, metric: 'ccAcl_interceptNum', startTime: prevStartTime, endTime: prevEndTime }),
+        edgeoneAPI.getTopAnalysis({ zoneId: selectedZone, metric: 'ccManage_interceptNum', startTime: prevStartTime, endTime: prevEndTime }),
       ]);
 
       const metrics = results[0].status === 'fulfilled' ? results[0].value : [];
@@ -168,25 +223,62 @@ export default function EODashboard() {
             ccAcl_interceptNum: 0,
             ccManage_interceptNum: 0
          };
-         
+
+         // 存储时序数据用于图表展示
+         const timeSeriesData = {};
+
          // results[10] = ccRate_interceptNum, results[11] = ccAcl_interceptNum, results[12] = ccManage_interceptNum
          const securityResults = [results[10], results[11], results[12]];
          const metricNames = ['ccRate_interceptNum', 'ccAcl_interceptNum', 'ccManage_interceptNum'];
-         
+
          securityResults.forEach((res, index) => {
             if (res.status === 'fulfilled' && res.value) {
-               const data = res.value.Data || res.value;
-               if (Array.isArray(data) && data.length > 0) {
-                  const metric = data[0];
-                  if (metric.Detail) {
-                     const total = metric.Detail.reduce((acc, curr) => acc + (curr.Value || 0), 0);
-                     result[metricNames[index]] = total;
+               // 处理不同的响应结构
+               let data = res.value;
+
+               // 如果响应有 Data 属性，使用它
+               if (res.value.Data) {
+                  data = res.value.Data;
+               }
+
+               // 如果数据是数组，处理它
+               if (Array.isArray(data)) {
+                  // 尝试通过 MetricName 查找指标或使用第一个项目
+                  let metric = data.find(m => m.MetricName === metricNames[index]);
+                  if (!metric && data.length > 0) {
+                     metric = data[0];
+                  }
+
+                  if (metric) {
+                     // 尝试不同的值字段
+                     if (metric.Detail && Array.isArray(metric.Detail)) {
+                        // 计算总数
+                        const total = metric.Detail.reduce((acc, curr) => acc + (curr.Value || 0), 0);
+                        result[metricNames[index]] = total;
+
+                        // 保存时序数据
+                        timeSeriesData[metricNames[index]] = metric.Detail.map(item => ({
+                           timestamp: item.Timestamp,
+                           value: item.Value || 0
+                        }));
+                     } else if (metric.Value !== undefined) {
+                        result[metricNames[index]] = metric.Value;
+                     } else if (metric.Total !== undefined) {
+                        result[metricNames[index]] = metric.Total;
+                     }
+                  }
+               } else if (typeof data === 'object' && data !== null) {
+                  // 处理对象响应
+                  if (data.Value !== undefined) {
+                     result[metricNames[index]] = data.Value;
+                  } else if (data.Total !== undefined) {
+                     result[metricNames[index]] = data.Total;
                   }
                }
             }
          });
-         
-         return result;
+
+         return { totals: result, timeSeries: timeSeriesData };
       };
 
       const parseFunctionData = (res) => {
@@ -216,7 +308,9 @@ export default function EODashboard() {
       setTopOS(parseTopData(results[7]));
       setTopDevices(parseTopData(results[8]));
       setStatusCodes(parseTopData(results[9]));
-      setSecurityData(parseSecurityData(results));
+      const securityParsed = parseSecurityData(results);
+      setSecurityData(securityParsed.totals);
+      setSecurityTimeSeriesData(securityParsed.timeSeries);
       setFunctionData(parseFunctionData(results[13]));
 
       const totals30d = (Array.isArray(metrics30d) ? metrics30d : []).reduce(
@@ -228,6 +322,121 @@ export default function EODashboard() {
         { requests: 0, bytes: 0 }
       );
       setLast30DaysTotals(totals30d);
+
+      // 计算环比数据
+      const prevMetrics = results[14].status === 'fulfilled' ? results[14].value : [];
+      const currentTotals = (Array.isArray(metrics) ? metrics : []).reduce(
+        (acc, item) => {
+          acc.requests += item.requests || 0;
+          acc.bytes += item.bytes || 0;
+          acc.bandwidth = Math.max(acc.bandwidth, item.bandwidth || 0);
+          return acc;
+        },
+        { requests: 0, bytes: 0, bandwidth: 0 }
+      );
+      const prevTotals = (Array.isArray(prevMetrics) ? prevMetrics : []).reduce(
+        (acc, item) => {
+          acc.requests += item.requests || 0;
+          acc.bytes += item.bytes || 0;
+          acc.bandwidth = Math.max(acc.bandwidth, item.bandwidth || 0);
+          return acc;
+        },
+        { requests: 0, bytes: 0, bandwidth: 0 }
+      );
+
+      // 计算增长率
+      const calculateChange = (current, previous) => {
+        if (previous === 0) return current > 0 ? 100 : 0;
+        return ((current - previous) / previous) * 100;
+      };
+
+      // 计算回源环比
+      const prevOriginPull = results[15].status === 'fulfilled' ? results[15].value : [];
+      const currentOriginPullTotal = originPullData.reduce((acc, item) => acc + (item.requests || 0), 0);
+      const prevOriginPullTotal = (Array.isArray(prevOriginPull) ? prevOriginPull : []).reduce((acc, item) => acc + (item.requests || 0), 0);
+
+      // 计算安全拦截环比
+      const parseSecurityTotal = (res) => {
+        if (res.status === 'fulfilled' && res.value) {
+          let data = res.value;
+          if (res.value.Data) data = res.value.Data;
+          if (Array.isArray(data) && data.length > 0) {
+            const metric = data[0];
+            if (metric.Detail && Array.isArray(metric.Detail)) {
+              return metric.Detail.reduce((acc, item) => acc + (item.Value || 0), 0);
+            } else if (metric.Value !== undefined) {
+              return metric.Value;
+            } else if (metric.Total !== undefined) {
+              return metric.Total;
+            }
+          }
+        }
+        return 0;
+      };
+
+      const currentSecurityTotal = parseSecurityTotal(results[10]) + parseSecurityTotal(results[11]) + parseSecurityTotal(results[12]);
+      const prevSecurityTotal = parseSecurityTotal(results[16]) + parseSecurityTotal(results[17]) + parseSecurityTotal(results[18]);
+
+      setMomData({
+        requests: {
+          current: currentTotals.requests,
+          previous: prevTotals.requests,
+          change: calculateChange(currentTotals.requests, prevTotals.requests)
+        },
+        bytes: {
+          current: currentTotals.bytes,
+          previous: prevTotals.bytes,
+          change: calculateChange(currentTotals.bytes, prevTotals.bytes)
+        },
+        bandwidth: {
+          current: currentTotals.bandwidth,
+          previous: prevTotals.bandwidth,
+          change: calculateChange(currentTotals.bandwidth, prevTotals.bandwidth)
+        },
+        originPull: {
+          current: currentOriginPullTotal,
+          previous: prevOriginPullTotal,
+          change: calculateChange(currentOriginPullTotal, prevOriginPullTotal)
+        },
+        security: {
+          current: currentSecurityTotal,
+          previous: prevSecurityTotal,
+          change: calculateChange(currentSecurityTotal, prevSecurityTotal)
+        },
+        ccRate: {
+          current: parseSecurityTotal(results[10]),
+          previous: parseSecurityTotal(results[16]),
+          change: calculateChange(parseSecurityTotal(results[10]), parseSecurityTotal(results[16]))
+        },
+        ccAcl: {
+          current: parseSecurityTotal(results[11]),
+          previous: parseSecurityTotal(results[17]),
+          change: calculateChange(parseSecurityTotal(results[11]), parseSecurityTotal(results[17]))
+        },
+        ccManage: {
+          current: parseSecurityTotal(results[12]),
+          previous: parseSecurityTotal(results[18]),
+          change: calculateChange(parseSecurityTotal(results[12]), parseSecurityTotal(results[18]))
+        },
+        peakBandwidth: {
+          current: currentTotals.bandwidth,
+          previous: prevTotals.bandwidth,
+          change: calculateChange(currentTotals.bandwidth, prevTotals.bandwidth)
+        },
+        originPullBytes: {
+          current: currentOriginPullTotal,
+          previous: prevOriginPullTotal,
+          change: calculateChange(currentOriginPullTotal, prevOriginPullTotal)
+        },
+        originPullBandwidth: {
+          current: currentOriginPullTotal,
+          previous: prevOriginPullTotal,
+          change: calculateChange(currentOriginPullTotal, prevOriginPullTotal)
+        },
+        cacheHitRate: { current: 0, previous: 0, change: 0 },
+        avgResponseTime: { current: 0, previous: 0, change: 0 },
+        avgFirstByteTime: { current: 0, previous: 0, change: 0 }
+      });
     } catch (error) {
       console.error('Metrics Error:', error);
     }
@@ -250,6 +459,45 @@ export default function EODashboard() {
     if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
     return num.toString();
+  };
+
+  // 检查安全数据是否为空或全部为 0
+  const hasSecurityData = () => {
+    const rateData = securityTimeSeriesData.ccRate_interceptNum || [];
+    const aclData = securityTimeSeriesData.ccAcl_interceptNum || [];
+    const manageData = securityTimeSeriesData.ccManage_interceptNum || [];
+
+    const hasRateData = rateData.length > 0 && rateData.some(d => d.value > 0);
+    const hasAclData = aclData.length > 0 && aclData.some(d => d.value > 0);
+    const hasManageData = manageData.length > 0 && manageData.some(d => d.value > 0);
+
+    return hasRateData || hasAclData || hasManageData;
+  };
+
+  // 环比显示组件
+  const MomIndicator = ({ change }) => {
+    // 当变化为0时，不显示环比
+    if (change === 0) {
+      return null;
+    }
+
+    const isPositive = change > 0;
+    const absChange = Math.abs(change).toFixed(1);
+
+    return (
+      <div className={`flex items-center gap-1 text-xs ${isPositive ? 'text-red-500' : 'text-green-500'}`}>
+        {isPositive ? (
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        ) : (
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        )}
+        <span>{absChange}%</span>
+      </div>
+    );
   };
 
   const totalRequests = trafficData.reduce((acc, item) => acc + (item.requests || 0), 0);
@@ -639,8 +887,25 @@ export default function EODashboard() {
               >
                 {t('apply')}
               </button>
+              {customRangeError && (
+                <div className="text-red-500 text-sm mt-2 sm:mt-0 sm:absolute sm:top-full sm:left-0 sm:right-0">
+                  {customRangeError}
+                </div>
+              )}
             </div>
           )}
+          <div className="w-full sm:w-32">
+            <Select
+              value={timeGranularity}
+              onChange={(val) => setTimeGranularity(val)}
+              options={[
+                { value: '5min', label: `5${t('minutes') || '分钟'}` },
+                { value: 'hour', label: t('hourly') || '小时' },
+                { value: 'day', label: t('daily') || '天' }
+              ]}
+              placeholder={t('timeGranularity') || '时间粒度'}
+            />
+          </div>
           <div className="w-full sm:w-56">
             <Select
               value={selectedZone}
@@ -661,7 +926,10 @@ export default function EODashboard() {
             </div>
             <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('totalRequests')}</h3>
           </div>
-          <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(totalRequests)}</p>
+          <div className="flex items-center justify-between">
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(totalRequests)}</p>
+            <MomIndicator change={momData.requests.change} />
+          </div>
         </div>
         <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-2">
           <div className="flex items-center gap-2 mb-2">
@@ -670,7 +938,10 @@ export default function EODashboard() {
             </div>
             <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('totalTraffic')}</h3>
           </div>
-          <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBytes)}</p>
+          <div className="flex items-center justify-between">
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBytes)}</p>
+            <MomIndicator change={momData.bytes.change} />
+          </div>
         </div>
         <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-3">
           <div className="flex items-center gap-2 mb-2">
@@ -679,7 +950,10 @@ export default function EODashboard() {
             </div>
             <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('totalBandwidth')}</h3>
           </div>
-          <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+          <div className="flex items-center justify-between">
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+            <MomIndicator change={momData.bandwidth.change} />
+          </div>
         </div>
         <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-4">
           <div className="flex items-center gap-2 mb-2">
@@ -688,7 +962,10 @@ export default function EODashboard() {
             </div>
             <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPull')}</h3>
           </div>
-          <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(totalOriginPull)}</p>
+          <div className="flex items-center justify-between">
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(totalOriginPull)}</p>
+            <MomIndicator change={momData.originPull.change} />
+          </div>
         </div>
         <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-5">
            <div className="flex items-center gap-2 mb-2">
@@ -706,7 +983,10 @@ export default function EODashboard() {
             </div>
             <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('intercepts')}</h3>
           </div>
-          <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccRate_interceptNum || 0)}</p>
+          <div className="flex items-center justify-between">
+            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccRate_interceptNum || 0)}</p>
+            <MomIndicator change={momData.security.change} />
+          </div>
         </div>
         <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-7">
           <div className="flex items-center gap-2 mb-2">
@@ -824,7 +1104,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('peakBandwidth')}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+              <MomIndicator change={momData.peakBandwidth.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-14">
             <div className="flex items-center gap-2 mb-2">
@@ -833,7 +1116,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('peakRequestBandwidth')}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(peakBandwidthIn)}/s</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(peakBandwidthIn)}/s</p>
+              <MomIndicator change={momData.peakBandwidth.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up stagger-15">
             <div className="flex items-center gap-2 mb-2">
@@ -842,7 +1128,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('peakResponseBandwidth')}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(totalBandwidth)}/s</p>
+              <MomIndicator change={momData.peakBandwidth.change} />
+            </div>
           </div>
         </div>
         <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up stagger-16">
@@ -912,7 +1201,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequestTraffic') || '回源请求流量'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytes || 0), 0))}</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytes || 0), 0))}</p>
+              <MomIndicator change={momData.originPullBytes.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
@@ -921,7 +1213,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequestCount') || '回源请求数'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(originPullData.reduce((acc, item) => acc + (item.requests || 0), 0))}</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(originPullData.reduce((acc, item) => acc + (item.requests || 0), 0))}</p>
+              <MomIndicator change={momData.originPull.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
@@ -930,7 +1225,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullRequestBandwidth') || '回源请求带宽峰值'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidth || 0)) : 0)}/s</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidth || 0)) : 0)}/s</p>
+              <MomIndicator change={momData.originPullBandwidth.change} />
+            </div>
           </div>
         </div>
         {/* 第二行：响应相关 + 缓存命中率 */}
@@ -942,7 +1240,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullResponseTraffic') || '回源响应流量'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytesIn || 0), 0))}</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.reduce((acc, item) => acc + (item.bytesIn || 0), 0))}</p>
+              <MomIndicator change={momData.originPullBytes.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
@@ -951,7 +1252,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('originPullResponseBandwidth') || '回源响应带宽峰值'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidthIn || 0)) : 0)}/s</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatBytes(originPullData.length ? Math.max(...originPullData.map(item => item.bandwidthIn || 0)) : 0)}/s</p>
+              <MomIndicator change={momData.originPullBandwidth.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
@@ -960,7 +1264,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('cacheHitRate') || '缓存命中率'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{cacheHitRate}%</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{cacheHitRate}%</p>
+              <MomIndicator change={momData.cacheHitRate.change} />
+            </div>
           </div>
         </div>
         <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up">
@@ -1074,7 +1381,10 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('totalRequests') || '总请求数'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(performanceData.reduce((acc, item) => acc + (item.requests || 0), 0))}</p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(totalRequests)}</p>
+              <MomIndicator change={momData.requests.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
@@ -1085,11 +1395,14 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('avgResponseTime') || '平均响应耗时'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">
-              {performanceData.length > 0 
-                ? Math.round(performanceData.reduce((acc, item) => acc + (item.avgResponseTime || 0), 0) / performanceData.length) 
-                : 0} ms
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">
+                {performanceData.length > 0 
+                  ? Math.round(performanceData.reduce((acc, item) => acc + (item.avgResponseTime || 0), 0) / performanceData.length) 
+                  : 0} ms
+              </p>
+              <MomIndicator change={momData.avgResponseTime.change} />
+            </div>
           </div>
           <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-2">
@@ -1100,11 +1413,14 @@ export default function EODashboard() {
               </div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('avgFirstByteTime') || '平均首字节耗时'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">
-              {performanceData.length > 0 
-                ? Math.round(performanceData.reduce((acc, item) => acc + (item.avgFirstByteTime || 0), 0) / performanceData.length) 
-                : 0} ms
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="number-display text-xl sm:text-2xl font-bold">
+                {performanceData.length > 0 
+                  ? Math.round(performanceData.reduce((acc, item) => acc + (item.avgFirstByteTime || 0), 0) / performanceData.length) 
+                  : 0} ms
+              </p>
+              <MomIndicator change={momData.avgFirstByteTime.change} />
+            </div>
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -1234,109 +1550,136 @@ export default function EODashboard() {
       {/* 安全分析 */}
       <div className="space-y-4">
         <h3 className="text-lg font-bold">{t('securityAnalysis') || '安全分析'}</h3>
-        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
-          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="icon-wrapper p-1.5 rounded-lg bg-red-500/10">
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+        {hasSecurityData() ? (
+          <>
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
+              <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="icon-wrapper p-1.5 rounded-lg bg-red-500/10">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('ccRateIntercepts') || '速率限制拦截'}</h3>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccRate_interceptNum || 0)}</p>
+                  <MomIndicator change={momData.ccRate.change} />
+                </div>
               </div>
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('ccRateIntercepts') || '速率限制拦截'}</h3>
-            </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccRate_interceptNum || 0)}</p>
-          </div>
-          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="icon-wrapper p-1.5 rounded-lg bg-orange-500/10">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('ccAclIntercepts') || 'ACL 拦截'}</h3>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccAcl_interceptNum || 0)}</p>
+                  <MomIndicator change={momData.ccAcl.change} />
+                </div>
               </div>
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('ccAclIntercepts') || 'ACL 拦截'}</h3>
-            </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccAcl_interceptNum || 0)}</p>
-          </div>
-          <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="icon-wrapper p-1.5 rounded-lg bg-amber-500/10">
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <div className="data-card rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6 card-glow animate-slide-up">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="icon-wrapper p-1.5 rounded-lg bg-amber-500/10">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('ccManageIntercepts') || '管理拦截'}</h3>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccManage_interceptNum || 0)}</p>
+                  <MomIndicator change={momData.ccManage.change} />
+                </div>
               </div>
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{t('ccManageIntercepts') || '管理拦截'}</h3>
             </div>
-            <p className="number-display text-xl sm:text-2xl font-bold">{formatNumber(securityData?.ccManage_interceptNum || 0)}</p>
+            <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up">
+              <div className="p-4 sm:p-6">
+                <h3 className="font-semibold leading-none tracking-tight mb-4">{t('securityTrend') || '安全拦截趋势'}</h3>
+                <ReactECharts
+                  option={{
+                    tooltip: {
+                      trigger: 'axis',
+                      formatter: (params) => {
+                        let res = params[0].name + '<br/>';
+                        params.forEach((item) => {
+                          res += item.marker + item.seriesName + ': <b>' + formatNumber(item.value) + '</b><br/>';
+                        });
+                        return res;
+                      }
+                    },
+                    legend: {
+                      data: [t('ccRateIntercepts') || '速率限制拦截', t('ccAclIntercepts') || 'ACL 拦截', t('ccManageIntercepts') || '管理拦截'],
+                      bottom: 0
+                    },
+                    grid: {
+                      left: '3%',
+                      right: '4%',
+                      bottom: '10%',
+                      containLabel: true
+                    },
+                    xAxis: {
+                      type: 'category',
+                      data: securityTimeSeriesData.ccRate_interceptNum?.map(d => d.timestamp) || trafficData.map(d => d.timestamp)
+                    },
+                    yAxis: {
+                      type: 'value',
+                      axisLabel: {
+                        formatter: (value) => formatNumber(value)
+                      }
+                    },
+                    series: [
+                      {
+                        name: t('ccRateIntercepts') || '速率限制拦截',
+                        type: 'line',
+                        data: securityTimeSeriesData.ccRate_interceptNum?.map(d => d.value) || [],
+                        smooth: true,
+                        itemStyle: { color: '#ef4444' },
+                        lineStyle: { color: '#ef4444', width: 2 }
+                      },
+                      {
+                        name: t('ccAclIntercepts') || 'ACL 拦截',
+                        type: 'line',
+                        data: securityTimeSeriesData.ccAcl_interceptNum?.map(d => d.value) || [],
+                        smooth: true,
+                        itemStyle: { color: '#f97316' },
+                        lineStyle: { color: '#f97316', width: 2 }
+                      },
+                      {
+                        name: t('ccManageIntercepts') || '管理拦截',
+                        type: 'line',
+                        data: securityTimeSeriesData.ccManage_interceptNum?.map(d => d.value) || [],
+                        smooth: true,
+                        itemStyle: { color: '#f59e0b' },
+                        lineStyle: { color: '#f59e0b', width: 2 }
+                      }
+                    ],
+                    animationDuration: 1000,
+                    animationEasing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                  style={{ height: '300px', minHeight: '250px' }}
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up">
+            <div className="p-8">
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 mb-4 rounded-full bg-amber-500/10 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{t('noSecurityData') || '暂无安全数据'}</h3>
+                <p className="text-muted-foreground">{t('noSecurityDataDesc') || '该站点在选定时间段内没有安全拦截记录'}</p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up">
-          <div className="p-4 sm:p-6">
-            <h3 className="font-semibold leading-none tracking-tight mb-4">{t('securityTrend') || '安全拦截趋势'}</h3>
-            <ReactECharts 
-              option={{
-                tooltip: {
-                  trigger: 'axis',
-                  formatter: (params) => {
-                    let res = params[0].name + '<br/>';
-                    params.forEach((item) => {
-                      res += item.marker + item.seriesName + ': <b>' + formatNumber(item.value) + '</b><br/>';
-                    });
-                    return res;
-                  }
-                },
-                legend: {
-                  data: [t('ccRateIntercepts') || '速率限制拦截', t('ccAclIntercepts') || 'ACL 拦截', t('ccManageIntercepts') || '管理拦截'],
-                  bottom: 0
-                },
-                grid: {
-                  left: '3%',
-                  right: '4%',
-                  bottom: '10%',
-                  containLabel: true
-                },
-                xAxis: {
-                  type: 'category',
-                  data: trafficData.map(d => d.timestamp)
-                },
-                yAxis: {
-                  type: 'value',
-                  axisLabel: {
-                    formatter: (value) => formatNumber(value)
-                  }
-                },
-                series: [
-                  {
-                    name: t('ccRateIntercepts') || '速率限制拦截',
-                    type: 'line',
-                    data: trafficData.map(() => Math.floor(Math.random() * 50)),
-                    smooth: true,
-                    itemStyle: { color: '#ef4444' },
-                    lineStyle: { color: '#ef4444', width: 2 }
-                  },
-                  {
-                    name: t('ccAclIntercepts') || 'ACL 拦截',
-                    type: 'line',
-                    data: trafficData.map(() => Math.floor(Math.random() * 30)),
-                    smooth: true,
-                    itemStyle: { color: '#f97316' },
-                    lineStyle: { color: '#f97316', width: 2 }
-                  },
-                  {
-                    name: t('ccManageIntercepts') || '管理拦截',
-                    type: 'line',
-                    data: trafficData.map(() => Math.floor(Math.random() * 20)),
-                    smooth: true,
-                    itemStyle: { color: '#f59e0b' },
-                    lineStyle: { color: '#f59e0b', width: 2 }
-                  }
-                ],
-                animationDuration: 1000,
-                animationEasing: 'cubic-bezier(0.4, 0, 0.2, 1)'
-              }} 
-              style={{ height: '300px', minHeight: '250px' }} 
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
