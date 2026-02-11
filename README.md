@@ -16,6 +16,8 @@
 
 ## 功能特性
 
+<img src="docs/icon-features.svg" alt="Features" width="32" height="32" align="left" style="margin-right: 8px;"/>
+
 ### 核心功能
 
 - ✅ **多平台支持**: 同时支持 Cloudflare 和 EdgeOne
@@ -55,6 +57,8 @@
 
 ## 技术栈
 
+<img src="docs/icon-tech.svg" alt="Tech Stack" width="32" height="32" align="left" style="margin-right: 8px;"/>
+
 ### 后端
 
 - **框架**: Node.js + Express 4.x
@@ -73,12 +77,16 @@
 
 ### 部署
 
+<img src="docs/icon-deploy.svg" alt="Deployment" width="32" height="32" align="left" style="margin-right: 8px;"/>
+
 - **容器**: Docker + Docker Compose
 - **反向代理**: Nginx
 - **进程管理**: PM2 / Systemd
 - **静态托管**: EdgeOne Pages / Vercel / Netlify
 
 ## 快速开始
+
+<img src="docs/icon-start.svg" alt="Quick Start" width="32" height="32" align="left" style="margin-right: 8px;"/>
 
 ### 使用 EdgeOne Pages 部署（推荐）
 
@@ -233,6 +241,8 @@ npm run dev
 
 ## 配置说明
 
+<img src="docs/icon-config.svg" alt="Configuration" width="32" height="32" align="left" style="margin-right: 8px;"/>
+
 ### Cloudflare 配置
 
 #### 方式一：环境变量（推荐）
@@ -299,6 +309,8 @@ accounts:
 - [海外版](https://console.tencentcloud.com/cam/user/userType)
 
 ## 项目结构
+
+<img src="docs/icon-structure.svg" alt="Project Structure" width="32" height="32" align="left" style="margin-right: 8px;"/>
 
 ```
 unified-monitor/
@@ -374,16 +386,22 @@ unified-monitor/
 
 ## 文档
 
+<img src="docs/icon-docs.svg" alt="Documentation" width="32" height="32" align="left" style="margin-right: 8px;"/>
+
 - [整合文档](docs/INTEGRATION.md) - 详细的整合方案和架构设计
 - [API 文档](docs/API.md) - 完整的 API 接口文档
 - [部署文档](docs/DEPLOYMENT.md) - 详细的部署指南
 
 ## 数据更新频率
 
+<img src="docs/icon-update.svg" alt="Data Update" width="32" height="32" align="left" style="margin-right: 8px;"/>
+
 - **Cloudflare 数据**: 每 2 小时更新一次
 - **EdgeOne 数据**: 实时查询（带 5 分钟缓存）
 
 ## 环境变量
+
+<img src="docs/icon-env.svg" alt="Environment Variables" width="32" height="32" align="left" style="margin-right: 8px;"/>
 
 完整的配置说明请查看 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
@@ -442,6 +460,8 @@ docker-compose up -d
 
 ## 开发
 
+<img src="docs/icon-dev.svg" alt="Development" width="32" height="32" align="left" style="margin-right: 8px;"/>
+
 ### 后端开发
 
 ```bash
@@ -459,6 +479,8 @@ npm run dev
 ```
 
 ## 测试
+
+<img src="docs/icon-test2.svg" alt="Testing" width="32" height="32" align="left" style="margin-right: 8px;"/>
 
 ```bash
 # 单元测试
