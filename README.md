@@ -72,8 +72,41 @@
 - **容器**: Docker + Docker Compose
 - **反向代理**: Nginx
 - **进程管理**: PM2 / Systemd
+- **静态托管**: EdgeOne Pages / Vercel / Netlify
 
 ## 快速开始
+
+### 使用 EdgeOne Pages 部署（推荐）
+
+支持前端静态部署到 EdgeOne Pages。
+
+1. **克隆项目**
+
+```bash
+git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+cd cdn-analytics-dashboard
+```
+
+2. **配置后端 API 地址**
+
+编辑 `frontend/.env.production` 文件，配置后端 API 地址：
+
+```env
+VITE_API_TARGET=https://your-backend-domain.com
+```
+
+3. **在 EdgeOne Pages 创建项目**
+
+- 登录 [EdgeOne Pages 控制台](https://console.cloud.tencent.com/tencentcloud/pages)
+- 连接 GitHub/GitLab 仓库
+- 选择 `frontend` 目录作为构建目录
+- 构建命令: `npm run build`
+- 输出目录: `dist`
+
+4. **配置环境变量**
+
+在 EdgeOne Pages 项目设置中添加:
+- `VITE_API_TARGET`: 后端服务地址
 
 ### 使用 Docker Compose（推荐）
 
