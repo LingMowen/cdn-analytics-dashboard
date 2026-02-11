@@ -108,6 +108,61 @@ VITE_API_TARGET=https://your-backend-domain.com
 在 EdgeOne Pages 项目设置中添加:
 - `VITE_API_TARGET`: 后端服务地址
 
+### 使用 EdgeOne 云函数部署后端
+
+后端支持部署到腾讯云 EdgeOne 云函数（Serverless）。
+
+1. **克隆项目**
+
+```bash
+git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+cd cdn-analytics-dashboard
+```
+
+2. **配置环境变量**
+
+复制环境变量示例文件并配置：
+
+```bash
+cd backend
+cp .env.example .env
+# 编辑配置文件，添加您的 API 密钥
+```
+
+3. **安装 Serverless Framework**
+
+```bash
+npm install -g serverless
+```
+
+4. **部署到腾讯云**
+
+```bash
+serverless deploy
+```
+
+或者使用 Serverless CLI：
+
+```bash
+cd backend
+serverless deploy
+```
+
+5. **获取 API 地址**
+
+部署完成后，Serverless 会输出 API 网关地址，格式类似：
+```
+apiGateway:
+  url: https://service-xxx-xxx.ap-guangzhou.apigateway.com
+```
+
+6. **配置前端环境变量**
+
+将获取到的 API 地址配置到前端：
+```
+VITE_API_TARGET=https://service-xxx-xxx.ap-guangzhou.apigateway.com
+```
+
 ### 使用 Docker Compose（推荐）
 
 这是最快速、最简单的部署方式。

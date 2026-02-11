@@ -1,0 +1,54 @@
+service: cdn-analytics-backend
+
+provider:
+  name: tencent
+  runtime: Nodejs18
+  region: ap-guangzhou
+  stage: prod
+  memorySize: 512
+  timeout: 300
+  environment:
+    variables:
+      NODE_ENV: production
+
+plugins:
+  - serverless-tencent-scf
+
+package:
+  exclude:
+    - node_modules/**
+    - .git/**
+    - .env
+    - .env.*
+    - '!node_modules/tencentcloud-sdk-nodejs-teo/**'
+    - '!node_modules/tencentcloud-sdk-nodejs-common/**'
+    - '!node_modules/express/**'
+    - '!node_modules/axios/**'
+    - '!node_modules/node-cron/**'
+    - '!node_modules/js-yaml/**'
+    - '!node_modules/dotenv/**'
+    - '!node_modules/node-cache/**'
+
+functions:
+  api:
+    handler: src/index.main
+    description: CDN Analytics Dashboard API
+    events:
+      - http:
+          path: /
+          method: ANY
+      - http:
+          path: /{proxy+}
+          method: ANY
+    environment:
+      variables:
+        PORT: 9000
+
+custom:
+  tencent:
+    credentials: ~/.tencentcloud/credentials
+    apigateway:
+      protocols:
+        - https
+      environment: release
+      cors: true

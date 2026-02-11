@@ -4,10 +4,9 @@ import fs from 'fs/promises';
 import yaml from 'js-yaml';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import 'dotenv/config'; // Load environment variables
+import 'dotenv/config';
 import { loadAllConfig } from './config/index.js';
 import routes from './routes/index.js';
-import { cacheMiddleware } from './middleware/cache.js';
 import { logger, _ } from './utils/logger.js';
 import { CloudflareService } from './services/cloudflare.js';
 
@@ -16,7 +15,7 @@ const __dirname = path.dirname(__filename);
 
 const CONFIG = loadAllConfig();
 const OUT = './data/analytics.json';
-const PORT = CONFIG.server.port;
+const PORT = process.env.PORT || CONFIG.server.port || 4000;
 
 const app = express();
 
@@ -36,17 +35,11 @@ app.use((req, res, next) => {
 
 app.use('/api', routes);
 
-app.use('/data', express.static('./data', {
-  setHeaders: (res, path) => {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-  }
-}));
-
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+let updateTask = null;
 
 async function updateCloudflareData() {
   try {
@@ -94,13 +87,100 @@ async function updateCloudflareData() {
   }
 }
 
-await updateCloudflareData();
-cron.schedule('0 */2 * * *', updateCloudflareData);
+async function initialize() {
+  try {
+    await updateCloudflareData();
+    
+    if (!updateTask) {
+      updateTask = cron.schedule('0 */2 * * *', updateCloudflareData);
+    }
+    
+    logger.info(_(`[初始化完成] 服务运行在端口 ${PORT}`, `[Initialization Complete] Server running on port ${PORT}`));
+    logger.info(_(`环境: ${CONFIG.server.nodeEnv}`, `Environment: ${CONFIG.server.nodeEnv}`));
+    logger.info(_(`语言: ${CONFIG.server.isEn ? 'English' : '中文'}`, `Language: ${CONFIG.server.isEn ? 'English' : 'Chinese'}`));
+    logger.info(_(`Cloudflare配置加载成功: ${CONFIG.cloudflare.accounts.length} 个账户`, `Cloudflare config loaded: ${CONFIG.cloudflare.accounts.length} accounts`));
+    logger.info(_(`EdgeOne配置加载成功: ${CONFIG.edgeone.accounts.length} 个账户`, `EdgeOne config loaded: ${CONFIG.edgeone.accounts.length} accounts`));
+  } catch (error) {
+    logger.error(_('[初始化失败]', '[Initialization Failed]'), error.message);
+  }
+}
 
-app.listen(PORT, () => {
-  logger.info(_(`服务运行在端口 ${PORT}`, `Server running on port ${PORT}`));
-  logger.info(_(`环境: ${CONFIG.server.nodeEnv}`, `Environment: ${CONFIG.server.nodeEnv}`));
-  logger.info(_(`语言: ${CONFIG.server.isEn ? 'English' : '中文'}`, `Language: ${CONFIG.server.isEn ? 'English' : 'Chinese'}`));
-  logger.info(_(`Cloudflare配置加载成功: ${CONFIG.cloudflare.accounts.length} 个账户`, `Cloudflare config loaded: ${CONFIG.cloudflare.accounts.length} accounts`));
-  logger.info(_(`EdgeOne配置加载成功: ${CONFIG.edgeone.accounts.length} 个账户`, `EdgeOne config loaded: ${CONFIG.edgeone.accounts.length} accounts`));
-});
+let server = null;
+
+async function startServer() {
+  if (!server) {
+    server = app.listen(PORT, () => {
+      initialize();
+    });
+  }
+  return server;
+}
+
+async function stopServer() {
+  if (server) {
+    await new Promise((resolve) => {
+      server.close(resolve);
+    });
+    server = null;
+    if (updateTask) {
+      updateTask.stop();
+      updateTask = null;
+    }
+  }
+}
+
+export async function main(event, context) {
+  if (event.action === 'start') {
+    await startServer();
+    return { statusCode: 200, body: 'Server started' };
+  }
+  
+  if (event.httpMethod) {
+    return new Promise((resolve) => {
+      const req = {
+        method: event.httpMethod,
+        path: event.path,
+        headers: event.headers || {},
+        query: event.queryStringParameters || {},
+        body: event.body,
+        params: event.pathParameters || {}
+      };
+
+      const res = {
+        statusCode: 200,
+        headers: {},
+        body: '',
+        setHeader: function(key, value) {
+          this.headers[key] = value;
+        },
+        status: function(code) {
+          this.statusCode = code;
+          return this;
+        },
+        send: function(data) {
+          this.body = typeof data === 'string' ? data : JSON.stringify(data);
+          resolve({
+            statusCode: this.statusCode,
+            headers: this.headers,
+            body: this.body
+          });
+        },
+        json: function(data) {
+          this.setHeader('Content-Type', 'application/json');
+          this.body = JSON.stringify(data);
+          resolve({
+            statusCode: this.statusCode,
+            headers: this.headers,
+            body: this.body
+          });
+        }
+      };
+
+      app(req, res);
+    });
+  }
+
+  return { statusCode: 200, body: 'CDN Analytics API' };
+}
+
+startServer();
