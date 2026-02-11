@@ -1,5 +1,7 @@
 # API 文档
 
+<img src="icon-api.svg" alt="API" width="48" height="48" align="right"/>
+
 ## 概述
 
 Unified Monitor API 提供了 Cloudflare 和 EdgeOne 两个平台的监控数据接口。所有接口均使用 RESTful 风格，返回 JSON 格式数据。

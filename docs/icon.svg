@@ -1,39 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b82f6"/>
-      <stop offset="100%" style="stop-color:#8b5cf6"/>
-    </linearGradient>
-    <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981"/>
-      <stop offset="100%" style="stop-color:#06b6d4"/>
-    </linearGradient>
-  </defs>
-  
   <!-- Background -->
-  <rect width="128" height="128" rx="24" fill="url(#bgGrad)"/>
+  <rect width="128" height="128" rx="24" fill="white"/>
   
   <!-- Cloud shape -->
   <path d="M32 72 Q32 56 44 52 Q40 40 52 40 Q52 32 64 32 Q72 24 84 32 Q96 32 96 44 Q100 44 100 52 Q108 56 100 72 L32 72 Z" 
-        fill="white" opacity="0.9"/>
+        fill="#3b82f6"/>
   
   <!-- Chart bars -->
-  <rect x="28" y="84" width="8" height="24" rx="2" fill="url(#chartGrad)"/>
-  <rect x="40" y="76" width="8" height="32" rx="2" fill="url(#chartGrad)"/>
-  <rect x="52" y="68" width="8" height="40" rx="2" fill="url(#chartGrad)"/>
-  <rect x="64" y="60" width="8" height="48" rx="2" fill="url(#chartGrad)"/>
-  <rect x="76" y="72" width="8" height="36" rx="2" fill="url(#chartGrad)"/>
-  <rect x="88" y="80" width="8" height="28" rx="2" fill="url(#chartGrad)"/>
+  <rect x="28" y="84" width="8" height="24" rx="2" fill="#10b981"/>
+  <rect x="40" y="76" width="8" height="32" rx="2" fill="#06b6d4"/>
+  <rect x="52" y="68" width="8" height="40" rx="2" fill="#3b82f6"/>
+  <rect x="64" y="60" width="8" height="48" rx="2" fill="#8b5cf6"/>
+  <rect x="76" y="72" width="8" height="36" rx="2" fill="#f97316"/>
+  <rect x="88" y="80" width="8" height="28" rx="2" fill="#10b981"/>
   
   <!-- Trend line -->
   <path d="M32 88 L44 80 L56 72 L68 64 L80 76 L92 84" 
-        stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+        stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   
   <!-- Data dots -->
-  <circle cx="32" cy="88" r="3" fill="white"/>
-  <circle cx="44" cy="80" r="3" fill="white"/>
-  <circle cx="56" cy="72" r="3" fill="white"/>
-  <circle cx="68" cy="64" r="3" fill="white"/>
-  <circle cx="80" cy="76" r="3" fill="white"/>
-  <circle cx="92" cy="84" r="3" fill="white"/>
+  <circle cx="32" cy="88" r="3" fill="#3b82f6"/>
+  <circle cx="44" cy="80" r="3" fill="#06b6d4"/>
+  <circle cx="56" cy="72" r="3" fill="#3b82f6"/>
+  <circle cx="68" cy="64" r="3" fill="#8b5cf6"/>
+  <circle cx="80" cy="76" r="3" fill="#f97316"/>
+  <circle cx="92" cy="84" r="3" fill="#10b981"/>
 </svg>

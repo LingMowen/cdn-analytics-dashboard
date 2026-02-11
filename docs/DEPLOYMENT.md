@@ -1,5 +1,7 @@
 # 部署文档
 
+<img src="icon-deployment.svg" alt="Deployment" width="48" height="48" align="right"/>
+
 本文档提供了 Unified Monitor 的详细部署指南，包括 Docker 部署、本地开发和生产环境配置。
 
 ## 目录

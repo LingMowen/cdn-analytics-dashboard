@@ -1,5 +1,7 @@
 # 测试报告
 
+<img src="icon-test.svg" alt="Test Report" width="48" height="48" align="right"/>
+
 ## 项目概述
 
 **项目名称**: Cloudflare & EdgeOne 监控系统融合

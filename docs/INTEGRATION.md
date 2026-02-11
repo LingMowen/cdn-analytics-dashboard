@@ -1,5 +1,7 @@
 # Cloudflare & EdgeOne 监控系统整合文档
 
+<img src="icon-integration.svg" alt="Integration" width="48" height="48" align="right"/>
+
 ## 项目概述
 
 本项目将 Cloudflare Monitor 和 EdgeOne Monitor 两个独立的监控项目进行了系统性融合，创建了一个统一的监控仪表盘，支持同时监控 Cloudflare 和 EdgeOne 两个平台的流量数据。

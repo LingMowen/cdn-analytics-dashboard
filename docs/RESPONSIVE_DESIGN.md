@@ -1,5 +1,7 @@
 # 前端多端适配实现文档
 
+<img src="icon-responsive.svg" alt="Responsive Design" width="48" height="48" align="right"/>
+
 ## 概述
 
 本文档记录了 Unified Monitor 前端多端适配功能的实现细节，确保应用在各种设备（桌面电脑、笔记本电脑、平板电脑、智能手机等）上均能正确显示并提供良好的用户体验。

@@ -1,5 +1,7 @@
 # Unified Monitor 项目使用指南
 
+<img src="icon-guide.svg" alt="User Guide" width="48" height="48" align="right"/>
+
 ## 目录
 
 - [项目简介](#项目简介)
