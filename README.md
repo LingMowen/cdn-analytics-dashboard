@@ -1,5 +1,9 @@
 # Unified Monitor - Cloudflare & EdgeOne 统一监控仪表盘
 
+<div align="center">
+  <img src="docs/icon.svg" alt="Unified Monitor" width="128" height="128"/>
+</div>
+
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/lingmowen/cdn-analytics-dashboard)
 [![Node.js](https://img.shields.io/badge/node.js-18+-green.svg)](https://nodejs.org/)
