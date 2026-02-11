@@ -1682,6 +1682,34 @@ export default function EODashboard() {
         )}
       </div>
 
+      {/* TOP 分析 */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold">{t('topAnalysis') || 'TOP 分析'}</h3>
+
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+          <TopTable title={t('topUrls')} data={topUrls} />
+          <TopTable title={t('topReferers')} data={topReferers} />
+        </div>
+
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300">
+            <div className="p-4 sm:p-6">
+              <ReactECharts option={topBrowsersChartOption} style={{ height: '300px', minHeight: '250px' }} />
+            </div>
+          </div>
+          <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300">
+            <div className="p-4 sm:p-6">
+              <ReactECharts option={topOSChartOption} style={{ height: '300px', minHeight: '250px' }} />
+            </div>
+          </div>
+          <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300">
+            <div className="p-4 sm:p-6">
+              <ReactECharts option={topDevicesChartOption} style={{ height: '300px', minHeight: '250px' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
          <div className="chart-container rounded-xl border bg-card text-card-foreground shadow-sm animate-fade-in-up stagger-7">
             <div className="p-4 sm:p-6">
@@ -1709,29 +1737,6 @@ export default function EODashboard() {
                />
             </div>
          </div>
-      </div>
-
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <TopTable title={t('topUrls')} data={topUrls} />
-        <TopTable title={t('topReferers')} data={topReferers} />
-      </div>
-
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300">
-          <div className="p-4 sm:p-6">
-            <ReactECharts option={topBrowsersChartOption} style={{ height: '300px', minHeight: '250px' }} />
-          </div>
-        </div>
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300">
-          <div className="p-4 sm:p-6">
-            <ReactECharts option={topOSChartOption} style={{ height: '300px', minHeight: '250px' }} />
-          </div>
-        </div>
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300">
-          <div className="p-4 sm:p-6">
-            <ReactECharts option={topDevicesChartOption} style={{ height: '300px', minHeight: '250px' }} />
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 # Unified Monitor - Cloudflare & EdgeOne 统一监控仪表盘
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/lingmowen/cdn-analytics-dashboard)
 [![Node.js](https://img.shields.io/badge/node.js-18+-green.svg)](https://nodejs.org/)
 
@@ -391,7 +391,14 @@ npm run test:e2e
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
+本项目采用 GNU Affero General Public License v3.0 (AGPL-3.0) 许可证 - 详见 [LICENSE](LICENSE) 文件。
+
+### AGPL-3.0 许可证要点
+
+- **自由使用**: 您可以自由使用、修改和分发本软件
+- **开源要求**: 如果您分发修改后的版本，必须开源您的源代码
+- **网络使用**: 如果您通过网络使用本软件的修改版本，必须向用户公开源代码
+- **商业使用**: 允许商业使用，但必须遵守许可证条款
 
 ## 致谢
 
