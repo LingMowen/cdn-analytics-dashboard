@@ -3,6 +3,7 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext.jsx';
 import { ThemeProvider } from './contexts/ThemeContext.jsx';
 import { PlatformProvider, usePlatform } from './contexts/PlatformContext.jsx';
 import { RefreshProvider } from './contexts/RefreshContext.jsx';
+import { BackgroundProvider } from './contexts/BackgroundContext.jsx';
 import Header from './components/common/Header';
 import CFDashboard from './components/cloudflare/Dashboard';
 import EODashboard from './components/edgeone/Dashboard';
@@ -55,13 +56,15 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <LanguageProvider>
-        <PlatformProvider>
-          <RefreshProvider>
-            <AppContent />
-          </RefreshProvider>
-        </PlatformProvider>
-      </LanguageProvider>
+      <BackgroundProvider>
+        <LanguageProvider>
+          <PlatformProvider>
+            <RefreshProvider>
+              <AppContent />
+            </RefreshProvider>
+          </PlatformProvider>
+        </LanguageProvider>
+      </BackgroundProvider>
     </ThemeProvider>
   );
 }

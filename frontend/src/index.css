@@ -88,6 +88,40 @@ code {
   color: hsl(var(--foreground));
   transition: background-color 0.3s, color 0.3s;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Custom Background Styles */
+.custom-background .app-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: var(--bg-opacity, 0.15);
+  filter: blur(var(--bg-blur, 0px));
+  z-index: -1;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.custom-background .app-container::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: hsl(var(--background) / 0.7);
+  z-index: -1;
+}
+
+.dark.custom-background .app-container::after {
+  background-color: hsl(var(--background) / 0.8);
 }
 
 @media (max-width: 640px) {

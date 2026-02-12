@@ -3,6 +3,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useRefresh } from '../../contexts/RefreshContext';
 import { usePlatform } from '../../contexts/PlatformContext';
 import PlatformSwitch from './PlatformSwitch';
+import BackgroundSettings from './BackgroundSettings';
 
 export default function Header() {
   const { t, language } = useLanguage();
@@ -109,6 +110,7 @@ export default function Header() {
             </div>
             
             <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
+              <BackgroundSettings />
               <PlatformSwitch />
               <button
                 onClick={handleRefresh}

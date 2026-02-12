@@ -129,7 +129,15 @@ export const LanguageProvider = ({ children }) => {
         timeGranularity: '时间粒度',
         minutes: '分钟',
         hourly: '小时',
-        daily: '天'
+        daily: '天',
+        backgroundSettings: '背景设置',
+        enableBackground: '启用背景',
+        backgroundImage: '背景图片',
+        uploadImage: '上传图片',
+        imageUrlPlaceholder: '图片 URL',
+        opacity: '透明度',
+        blur: '模糊度',
+        reset: '重置'
       },
       en: {
         dashboardTitle: 'Unified Monitor Dashboard',
@@ -235,7 +243,15 @@ export const LanguageProvider = ({ children }) => {
         timeGranularity: 'Time Granularity',
         minutes: 'min',
         hourly: 'Hour',
-        daily: 'Day'
+        daily: 'Day',
+        backgroundSettings: 'Background Settings',
+        enableBackground: 'Enable Background',
+        backgroundImage: 'Background Image',
+        uploadImage: 'Upload Image',
+        imageUrlPlaceholder: 'Image URL',
+        opacity: 'Opacity',
+        blur: 'Blur',
+        reset: 'Reset'
       }
     };
 
