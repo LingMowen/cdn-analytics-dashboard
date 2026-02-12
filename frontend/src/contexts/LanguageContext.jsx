@@ -129,23 +129,7 @@ export const LanguageProvider = ({ children }) => {
         timeGranularity: '时间粒度',
         minutes: '分钟',
         hourly: '小时',
-        daily: '天',
-        backgroundSettings: '背景设置',
-        enableBackground: '启用背景',
-        backgroundImage: '背景图片',
-        uploadImage: '上传图片',
-        imageUrlPlaceholder: '图片 URL',
-        opacity: '透明度',
-        blur: '模糊度',
-        reset: '重置',
-        themeColorSettings: '主题色设置',
-        syncColors: '同步两种模式',
-        lightModeColor: '浅色模式',
-        darkModeColor: '深色模式',
-        custom: '自定义',
-        currentPreview: '当前预览',
-        light: '浅色',
-        dark: '深色'
+        daily: '天'
       },
       en: {
         dashboardTitle: 'Unified Monitor Dashboard',
@@ -259,15 +243,7 @@ export const LanguageProvider = ({ children }) => {
         imageUrlPlaceholder: 'Image URL',
         opacity: 'Opacity',
         blur: 'Blur',
-        reset: 'Reset',
-        themeColorSettings: 'Theme Color',
-        syncColors: 'Sync Both Modes',
-        lightModeColor: 'Light Mode',
-        darkModeColor: 'Dark Mode',
-        custom: 'Custom',
-        currentPreview: 'Current Preview',
-        light: 'Light',
-        dark: 'Dark'
+        reset: 'Reset'
       }
     };
 
