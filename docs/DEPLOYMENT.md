@@ -688,6 +688,196 @@ docker-compose up -d
 5. **监控日志**: 定期检查日志，发现异常
 6. **备份数据**: 定期备份重要数据
 
+## 部署到静态托管平台
+
+### EdgeOne Pages 部署
+
+支持前端静态部署到 EdgeOne Pages。
+
+1. **克隆项目**
+
+```bash
+git clone https://github.com/yourusername/unified-monitor.git
+cd unified-monitor
+```
+
+2. **配置后端 API 地址**
+
+编辑 `frontend/.env.production` 文件，配置后端 API 地址：
+
+```env
+VITE_API_TARGET=https://your-backend-domain.com
+```
+
+3. **在 EdgeOne Pages 创建项目**
+
+- 登录 [EdgeOne Pages 控制台](https://console.cloud.tencent.com/tencentcloud/pages)
+- 连接 GitHub/GitLab 仓库
+- 选择 `frontend` 目录作为构建目录
+- 构建命令: `npm run build`
+- 输出目录: `dist`
+
+4. **配置环境变量**
+
+在 EdgeOne Pages 项目设置中添加:
+- `VITE_API_TARGET`: 后端服务地址
+
+### Cloudflare Pages 部署
+
+支持前端静态部署到 Cloudflare Pages。
+
+1. **推送代码到 GitHub**
+
+将代码推送到 GitHub 仓库。
+
+2. **配置 Cloudflare**
+
+- 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
+- 进入 Pages 项目
+- 连接 GitHub 仓库
+- 选择 `frontend` 目录
+- 构建命令: `npm run build`
+- 输出目录: `dist`
+
+3. **配置环境变量**
+
+在 Pages 设置中添加:
+- `VITE_API_TARGET`: 后端服务地址
+
+4. **配置 secrets**
+
+在 GitHub 仓库设置中添加:
+- `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
+- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare 账户 ID
+
+5. **自动部署**
+
+推送代码后，GitHub Actions 会自动部署到 Cloudflare Pages。
+
+### GitHub Pages 部署
+
+支持前端静态部署到 GitHub Pages。
+
+1. **启用 GitHub Pages**
+
+- 进入仓库设置
+- 找到 Pages 选项
+- 选择 GitHub Actions 作为部署源
+
+2. **配置环境变量**
+
+在 GitHub 仓库设置中添加:
+- `VITE_API_TARGET`: 后端服务地址
+
+3. **自动部署**
+
+推送代码后，GitHub Actions 会自动部署到 GitHub Pages。
+
+## 部署到 Serverless 平台
+
+### EdgeOne 云函数部署后端
+
+后端支持部署到腾讯云 EdgeOne 云函数（Serverless）。
+
+1. **克隆项目**
+
+```bash
+git clone https://github.com/yourusername/unified-monitor.git
+cd unified-monitor
+```
+
+2. **配置环境变量**
+
+复制环境变量示例文件并配置：
+
+```bash
+cd backend
+cp .env.example .env
+# 编辑配置文件，添加您的 API 密钥
+```
+
+3. **安装 Serverless Framework**
+
+```bash
+npm install -g serverless
+```
+
+4. **部署到腾讯云**
+
+```bash
+serverless deploy
+```
+
+或者使用 Serverless CLI：
+
+```bash
+cd backend
+serverless deploy
+```
+
+5. **获取 API 地址**
+
+部署完成后，Serverless 会输出 API 网关地址，格式类似：
+```
+apiGateway:
+  url: https://service-xxx-xxx.ap-guangzhou.apigateway.com
+```
+
+6. **配置前端环境变量**
+
+将获取到的 API 地址配置到前端：
+```
+VITE_API_TARGET=https://service-xxx-xxx.ap-guangzhou.apigateway.com
+```
+
+### Cloudflare Workers 部署后端
+
+后端支持部署到 Cloudflare Workers（Serverless）。
+
+1. **克隆项目**
+
+```bash
+git clone https://github.com/yourusername/unified-monitor.git
+cd unified-monitor
+```
+
+2. **配置环境变量**
+
+复制环境变量示例文件并配置：
+
+```bash
+cd backend
+cp .env.example .env
+# 编辑配置文件，添加您的 API 密钥
+```
+
+3. **安装 Wrangler CLI**
+
+```bash
+npm install -g wrangler
+```
+
+4. **部署到 Cloudflare Workers**
+
+```bash
+cd backend
+wrangler deploy
+```
+
+5. **获取 API 地址**
+
+部署完成后，Wrangler 会输出 Workers 地址，格式类似：
+```
+https://unified-monitor-backend.your-account.workers.dev
+```
+
+6. **配置前端环境变量**
+
+将获取到的 API 地址配置到前端：
+```
+VITE_API_TARGET=https://unified-monitor-backend.your-account.workers.dev
+```
+
 ## 支持
 
 如有问题，请提交 Issue 或联系技术支持。

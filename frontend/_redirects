@@ -1,0 +1,7 @@
+# Cloudflare Pages 路由配置
+
+# API 代理到后端
+/api/* https://your-backend-api.example.com/:splat 200
+
+# 所有其他路由重定向到 index.html
+/* /index.html 200

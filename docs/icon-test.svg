@@ -1,6 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <rect width="48" height="48" rx="8" fill="white"/>
-  <path d="M14 12 L22 20 L34 8" stroke="#10b981" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="10" y="26" width="28" height="14" rx="2" fill="#3b82f6"/>
-  <path d="M16 33 L20 37 L32 25" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="white"/>
+  
+  <!-- Test tube shape -->
+  <path d="M56 24 L72 24 L88 40 L88 96 C88 104 80 112 72 112 L56 112 C48 112 40 104 40 96 L40 40 Z" fill="#8b5cf6"/>
+  
+  <!-- Bubbles -->
+  <circle cx="52" cy="56" r="6" fill="#10b981"/>
+  <circle cx="68" cy="68" r="4" fill="#3b82f6"/>
+  <circle cx="60" cy="84" r="5" fill="#f97316"/>
+  
+  <!-- Check marks -->
+  <path d="M32 32 L40 40 L56 24" stroke="white" stroke-width="4" fill="none"/>
+  <path d="M32 48 L40 56 L56 40" stroke="white" stroke-width="4" fill="none"/>
 </svg>

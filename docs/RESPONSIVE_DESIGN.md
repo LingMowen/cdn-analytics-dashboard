@@ -422,6 +422,77 @@ xl: 1280px // 大型桌面
    - 支持屏幕阅读器
    - 键盘导航优化
 
+## 新增功能响应式适配
+
+### v1.5.0 TOP 分析板块响应式设计
+
+**文件**: `frontend/src/components/edgeone/Dashboard.jsx`
+
+**优化内容**:
+- TOP 表格响应式布局
+- TOP 图表响应式显示
+- 移动端表格滚动优化
+
+**关键代码**:
+```jsx
+{/* TOP 分析板块响应式布局 */}
+<div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+  {/* 移动端: 单列 */}
+  {/* 桌面端: 双列 */}
+  <div className="overflow-x-auto">
+    {/* 表格水平滚动，适合移动设备 */}
+  </div>
+</div>
+```
+
+### v1.4.0 时间粒度选择器响应式设计
+
+**文件**: `frontend/src/components/edgeone/Dashboard.jsx`
+
+**优化内容**:
+- 时间粒度选择器响应式尺寸
+- 移动端紧凑布局
+- 触摸友好的按钮尺寸
+
+**关键代码**:
+```jsx
+<select className="w-full sm:w-auto px-3 py-2 text-sm sm:text-base min-h-[40px] sm:min-h-[44px] rounded-md border">
+  {/* 移动端: 宽度 100%，适合触摸 */}
+  {/* 桌面端: 自适应宽度 */}
+</select>
+```
+
+### 环比数据显示响应式设计
+
+**文件**: `frontend/src/components/common/DataCard.jsx`
+
+**优化内容**:
+- 环比指标响应式布局
+- 移动端紧凑显示
+- 箭头图标响应式尺寸
+
+**关键代码**:
+```jsx
+<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2">
+  {/* 移动端: 垂直布局 */}
+  {/* 桌面端: 水平布局 */}
+  <span className="text-sm">{value}</span>
+  <span className={`ml-0 sm:ml-2 text-sm ${changeColor}`}>
+    {/* 移动端: 无左边距 */}
+    {/* 桌面端: 有左边距 */}
+  </span>
+</div>
+```
+
+### 图表图例响应式设计
+
+**文件**: `frontend/src/components/charts/*`
+
+**优化内容**:
+- 图表图例响应式位置
+- 移动端底部显示
+- 桌面端右侧显示
+
 ## 总结
 
 本次多端适配实现涵盖了以下方面：
@@ -436,5 +507,9 @@ xl: 1280px // 大型桌面
 ✅ 图片响应式处理
 ✅ 焦点状态优化
 ✅ 过渡动画优化
+✅ TOP 分析板块响应式适配
+✅ 时间粒度选择器响应式适配
+✅ 环比数据显示响应式适配
+✅ 图表图例响应式适配
 
 所有优化均遵循移动优先的设计原则，确保在从 320px 的小型手机到 1920px 及以上的桌面显示器上都能提供良好的用户体验。

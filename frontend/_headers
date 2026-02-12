@@ -1,0 +1,39 @@
+{
+  "name": "Unified Monitor",
+  "compatibility_date": "2024-01-01",
+  "builds": [
+    {
+      "src": "frontend/**",
+      "use": "@cloudflare/pages-plugin-vite",
+      "config": {
+        "vite": {
+          "build": {
+            "outDir": "dist"
+          }
+        }
+      }
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "/api/*",
+      "zone_name": null
+    },
+    {
+      "pattern": "/*",
+      "rewrite": "/index.html"
+    }
+  ],
+  "env": {
+    "production": {
+      "vars": {
+        "NODE_ENV": "production"
+      }
+    },
+    "preview": {
+      "vars": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

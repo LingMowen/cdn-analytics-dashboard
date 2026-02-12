@@ -1,6 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <rect width="48" height="48" rx="8" fill="white"/>
-  <path d="M8 12 L20 12 L20 16 L12 16 L12 32 L20 32 L20 36 L8 36 Z" fill="#3b82f6"/>
-  <path d="M28 12 L40 12 L40 16 L32 16 L32 24 L40 24 L40 28 L28 28 Z" fill="#10b981"/>
-  <path d="M22 20 L26 20 L26 36 L22 36 Z" fill="#8b5cf6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="white"/>
+  
+  <!-- API endpoint rectangle -->
+  <rect x="24" y="32" width="80" height="64" rx="8" fill="#8b5cf6"/>
+  
+  <!-- HTTP method tags -->
+  <rect x="32" y="40" width="24" height="8" rx="2" fill="white"/>
+  <rect x="60" y="40" width="32" height="8" rx="2" fill="white"/>
+  <rect x="32" y="52" width="20" height="8" rx="2" fill="white"/>
+  <rect x="56" y="52" width="36" height="8" rx="2" fill="white"/>
+  
+  <!-- Data flow arrows -->
+  <path d="M40 68 L56 76 L40 84" fill="none" stroke="white" stroke-width="3"/>
+  <path d="M88 68 L72 76 L88 84" fill="none" stroke="white" stroke-width="3"/>
+  
+  <!-- Connection dots -->
+  <circle cx="24" cy="60" r="3" fill="#10b981"/>
+  <circle cx="104" cy="60" r="3" fill="#10b981"/>
 </svg>

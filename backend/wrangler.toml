@@ -1,0 +1,21 @@
+{
+  "name": "unified-monitor-backend",
+  "main": "worker.js",
+  "compatibility_date": "2024-01-01",
+  "vars": {
+    "ENV": "production"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "your-cache-namespace-id"
+    }
+  ],
+  "d1_databases": [],
+  "routes": [
+    {
+      "pattern": "/api/*",
+      "zone_name": null
+    }
+  ]
+}

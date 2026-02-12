@@ -1,8 +1,8 @@
+<div align="center">
+
 # Unified Monitor - Cloudflare & EdgeOne 统一监控仪表盘
 
-<div align="center">
   <img src="docs/icon.svg" alt="Unified Monitor" width="128" height="128"/>
-</div>
 
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/lingmowen/cdn-analytics-dashboard)
@@ -10,13 +10,13 @@
 
 一个统一的监控仪表盘，支持同时监控 Cloudflare 和 EdgeOne 两个 CDN 平台的流量数据。
 
+</div>
+
 ## 预览
 
 ![EdgeOne 监控仪表盘预览](screenshots/dashboard-preview.png)
 
-## 功能特性
-
-<img src="docs/icon-features.svg" alt="Features" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-features.svg" width="32"> 功能特性
 
 ### 核心功能
 
@@ -55,9 +55,7 @@
 - 多粒度查询（5分钟/小时/天）
 - 环比数据对比（与上一周期对比）
 
-## 技术栈
-
-<img src="docs/icon-tech.svg" alt="Tech Stack" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-tech.svg" width="32"> 技术栈
 
 ### 后端
 
@@ -75,18 +73,15 @@
 - **国际化**: i18next
 - **HTTP 客户端**: axios
 
-### 部署
-
-<img src="docs/icon-deploy.svg" alt="Deployment" width="32" height="32" align="left" style="margin-right: 8px;"/>
+#### 部署
 
 - **容器**: Docker + Docker Compose
 - **反向代理**: Nginx
 - **进程管理**: PM2 / Systemd
-- **静态托管**: EdgeOne Pages / Vercel / Netlify
+- **静态托管**: EdgeOne Pages / Cloudflare Pages / GitHub Pages / Vercel / Netlify
+- **Serverless**: EdgeOne 云函数 / Cloudflare Workers
 
-## 快速开始
-
-<img src="docs/icon-start.svg" alt="Quick Start" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-start.svg" width="32"> 快速开始
 
 ### 使用 EdgeOne Pages 部署（推荐）
 
@@ -119,6 +114,57 @@ VITE_API_TARGET=https://your-backend-domain.com
 
 在 EdgeOne Pages 项目设置中添加:
 - `VITE_API_TARGET`: 后端服务地址
+
+### 使用 Cloudflare Pages 部署
+
+支持前端静态部署到 Cloudflare Pages。
+
+1. **推送代码到 GitHub**
+
+将代码推送到 GitHub 仓库。
+
+2. **配置 Cloudflare**
+
+- 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
+- 进入 Pages 项目
+- 连接 GitHub 仓库
+- 选择 `frontend` 目录
+- 构建命令: `npm run build`
+- 输出目录: `dist`
+
+3. **配置环境变量**
+
+在 Pages 设置中添加:
+- `VITE_API_TARGET`: 后端服务地址
+
+4. **配置 secrets**
+
+在 GitHub 仓库设置中添加:
+- `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
+- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare 账户 ID
+
+5. **自动部署**
+
+推送代码后，GitHub Actions 会自动部署到 Cloudflare Pages。
+
+### 使用 GitHub Pages 部署
+
+支持前端静态部署到 GitHub Pages。
+
+1. **启用 GitHub Pages**
+
+- 进入仓库设置
+- 找到 Pages 选项
+- 选择 GitHub Actions 作为部署源
+
+2. **配置环境变量**
+
+在 GitHub 仓库设置中添加:
+- `VITE_API_TARGET`: 后端服务地址
+
+3. **自动部署**
+
+推送代码后，GitHub Actions 会自动部署到 GitHub Pages。
 
 ### 使用 EdgeOne 云函数部署后端
 
@@ -173,6 +219,54 @@ apiGateway:
 将获取到的 API 地址配置到前端：
 ```
 VITE_API_TARGET=https://service-xxx-xxx.ap-guangzhou.apigateway.com
+```
+
+### 使用 Cloudflare Workers 部署后端
+
+后端支持部署到 Cloudflare Workers（Serverless）。
+
+1. **克隆项目**
+
+```bash
+git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+cd cdn-analytics-dashboard
+```
+
+2. **配置环境变量**
+
+复制环境变量示例文件并配置：
+
+```bash
+cd backend
+cp .env.example .env
+# 编辑配置文件，添加您的 API 密钥
+```
+
+3. **安装 Wrangler CLI**
+
+```bash
+npm install -g wrangler
+```
+
+4. **部署到 Cloudflare Workers**
+
+```bash
+cd backend
+wrangler deploy
+```
+
+5. **获取 API 地址**
+
+部署完成后，Wrangler 会输出 Workers 地址，格式类似：
+```
+https://unified-monitor-backend.your-account.workers.dev
+```
+
+6. **配置前端环境变量**
+
+将获取到的 API 地址配置到前端：
+```
+VITE_API_TARGET=https://unified-monitor-backend.your-account.workers.dev
 ```
 
 ### 使用 Docker Compose（推荐）
@@ -239,9 +333,7 @@ npm run dev
 - 前端: http://localhost:3000
 - 后端: http://localhost:4000
 
-## 配置说明
-
-<img src="docs/icon-config.svg" alt="Configuration" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-config.svg" width="32"> 配置说明
 
 ### Cloudflare 配置
 
@@ -308,9 +400,7 @@ accounts:
 - [国内版](https://console.cloud.tencent.com/cam/user/userType)
 - [海外版](https://console.tencentcloud.com/cam/user/userType)
 
-## 项目结构
-
-<img src="docs/icon-structure.svg" alt="Project Structure" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-structure.svg" width="32"> 项目结构
 
 ```
 unified-monitor/
@@ -384,24 +474,18 @@ unified-monitor/
 - `GET /api/edgeone/pages/build-count` - 获取 Pages 构建次数
 - `GET /api/edgeone/pages/cloud-function-requests` - 获取 Pages 云函数请求
 
-## 文档
-
-<img src="docs/icon-docs.svg" alt="Documentation" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-docs.svg" width="32"> 文档
 
 - [整合文档](docs/INTEGRATION.md) - 详细的整合方案和架构设计
 - [API 文档](docs/API.md) - 完整的 API 接口文档
 - [部署文档](docs/DEPLOYMENT.md) - 详细的部署指南
 
-## 数据更新频率
-
-<img src="docs/icon-update.svg" alt="Data Update" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-update.svg" width="32"> 数据更新频率
 
 - **Cloudflare 数据**: 每 2 小时更新一次
 - **EdgeOne 数据**: 实时查询（带 5 分钟缓存）
 
-## 环境变量
-
-<img src="docs/icon-env.svg" alt="Environment Variables" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-env.svg" width="32"> 环境变量
 
 完整的配置说明请查看 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
@@ -458,9 +542,7 @@ docker-compose up -d
 
 详细的部署指南请查看 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
-## 开发
-
-<img src="docs/icon-dev.svg" alt="Development" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-dev.svg" width="32"> 开发
 
 ### 后端开发
 
@@ -478,9 +560,7 @@ npm install
 npm run dev
 ```
 
-## 测试
-
-<img src="docs/icon-test2.svg" alt="Testing" width="32" height="32" align="left" style="margin-right: 8px;"/>
+## <img src="docs/icon-test2.svg" width="32"> 测试
 
 ```bash
 # 单元测试
@@ -529,6 +609,12 @@ npm run test:e2e
 
 
 ## 更新日志
+
+### v1.5.0 (2026-02-11)
+- ✅ **TOP 分析板块**: EdgeOne 仪表板新增 TOP 分析独立板块
+  - 2 个 TOP 表格：TOP URL、TOP Referer
+  - 3 个 TOP 图表：浏览器分布、操作系统分布、设备类型分布
+  - 板块位于安全分析下方
 
 ### v1.4.0 (2026-02-10)
 - ✅ 时间粒度选择：支持 5 分钟/小时/天三种时间粒度
