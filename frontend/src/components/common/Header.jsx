@@ -4,6 +4,7 @@ import { useRefresh } from '../../contexts/RefreshContext';
 import { usePlatform } from '../../contexts/PlatformContext';
 import PlatformSwitch from './PlatformSwitch';
 import BackgroundSettings from './BackgroundSettings';
+import ThemeColorSettings from './ThemeColorSettings';
 
 export default function Header() {
   const { t, language } = useLanguage();
@@ -110,6 +111,7 @@ export default function Header() {
             </div>
             
             <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
+              <ThemeColorSettings />
               <BackgroundSettings />
               <PlatformSwitch />
               <button

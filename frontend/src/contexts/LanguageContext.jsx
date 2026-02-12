@@ -137,7 +137,15 @@ export const LanguageProvider = ({ children }) => {
         imageUrlPlaceholder: '图片 URL',
         opacity: '透明度',
         blur: '模糊度',
-        reset: '重置'
+        reset: '重置',
+        themeColorSettings: '主题色设置',
+        syncColors: '同步两种模式',
+        lightModeColor: '浅色模式',
+        darkModeColor: '深色模式',
+        custom: '自定义',
+        currentPreview: '当前预览',
+        light: '浅色',
+        dark: '深色'
       },
       en: {
         dashboardTitle: 'Unified Monitor Dashboard',
@@ -251,7 +259,15 @@ export const LanguageProvider = ({ children }) => {
         imageUrlPlaceholder: 'Image URL',
         opacity: 'Opacity',
         blur: 'Blur',
-        reset: 'Reset'
+        reset: 'Reset',
+        themeColorSettings: 'Theme Color',
+        syncColors: 'Sync Both Modes',
+        lightModeColor: 'Light Mode',
+        darkModeColor: 'Dark Mode',
+        custom: 'Custom',
+        currentPreview: 'Current Preview',
+        light: 'Light',
+        dark: 'Dark'
       }
     };
 
