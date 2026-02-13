@@ -6,6 +6,7 @@ import { RefreshProvider } from './contexts/RefreshContext.jsx';
 import Header from './components/common/Header';
 import CFDashboard from './components/cloudflare/Dashboard';
 import EODashboard from './components/edgeone/Dashboard';
+import AliyunDashboard from './components/aliyun/Dashboard';
 import UnifiedDashboard from './components/common/UnifiedDashboard';
 import './index.css';
 
@@ -47,6 +48,7 @@ function AppContent() {
         {platform === 'unified' && <UnifiedDashboard />}
         {platform === 'cloudflare' && <CFDashboard />}
         {platform === 'edgeone' && <EODashboard />}
+        {platform === 'aliyun' && <AliyunDashboard />}
       </main>
     </div>
   );

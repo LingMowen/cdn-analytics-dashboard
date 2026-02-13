@@ -8,7 +8,7 @@ export default function PlatformSwitch() {
   const { platform, changePlatform, platformAvailability } = usePlatform();
   const { t } = useLanguage();
 
-  const platforms = ['unified', 'cloudflare', 'edgeone'].filter((p) => {
+  const platforms = ['unified', 'cloudflare', 'edgeone', 'aliyun'].filter((p) => {
     if (!platformAvailability) return true;
     return !!platformAvailability[p];
   });

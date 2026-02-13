@@ -8,7 +8,7 @@
 [![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/lingmowen/cdn-analytics-dashboard)
 [![Node.js](https://img.shields.io/badge/node.js-18+-green.svg)](https://nodejs.org/)
 
-一个统一的监控仪表盘，支持同时监控 Cloudflare 和 EdgeOne 两个 CDN 平台的流量数据。
+一个统一的监控仪表盘，支持同时监控 Cloudflare、EdgeOne 和阿里云 ESA 多个 CDN 平台的流量数据。
 
 </div>
 
@@ -20,7 +20,7 @@
 
 ### 核心功能
 
-- ✅ **多平台支持**: 同时支持 Cloudflare 和 EdgeOne
+- ✅ **多平台支持**: 同时支持 Cloudflare、EdgeOne 和阿里云 ESA
 - ✅ **统一仪表盘**: 在一个界面查看所有平台数据
 - ✅ **平台切换**: 快速切换不同平台视图
 - ✅ **数据对比**: 对比不同平台的数据指标
@@ -55,6 +55,13 @@
 - 灵活时间段查询（近 1 小时 - 近 31 天）
 - 多粒度查询（5分钟/小时/天）
 - 环比数据对比（与上一周期对比）
+
+### 阿里云 ESA 专属功能
+
+- 支持阿里云 ESA 国内版（cn）和国际版（international）
+- 流量统计（带宽、流量、请求数）
+- 多账户支持
+- 多区域配置
 
 ## <img src="docs/icon-tech.svg" width="32"> 技术栈
 

@@ -136,6 +136,7 @@ export function loadAllConfig() {
   return {
     cloudflare: loadCloudflareConfig(),
     edgeone: loadEdgeOneConfig(),
+    aliyun: loadAliyunESAConfig(),
     server: {
       port: process.env.PORT || 4000,
       nodeEnv: process.env.NODE_ENV || 'development',
@@ -146,4 +147,59 @@ export function loadAllConfig() {
       edgeoneCacheTTL: parseInt(process.env.EO_CACHE_TTL) || 300000
     }
   };
+}
+
+export function loadAliyunESAConfig() {
+  const config = { 
+    accounts: [], 
+    enabledZones: [], 
+    disabledZones: [] 
+  };
+
+  if (process.env.ALIYUN_ESA_ACCESS_KEY_ID && process.env.ALIYUN_ESA_ACCESS_KEY_SECRET) {
+    if (process.env.ALIYUN_ESA_ACCESS_KEY_ID !== 'your_access_key_id') {
+      config.accounts.push({
+        name: process.env.ALIYUN_ESA_ACCOUNT_NAME || "Default Account",
+        accessKeyId: process.env.ALIYUN_ESA_ACCESS_KEY_ID,
+        accessKeySecret: process.env.ALIYUN_ESA_ACCESS_KEY_SECRET,
+        region: process.env.ALIYUN_ESA_REGION || 'cn'
+      });
+    }
+  }
+
+  let accountIndex = 1;
+  while (process.env[`ALIYUN_ESA_ACCESS_KEY_ID_${accountIndex}`]) {
+    config.accounts.push({
+      name: process.env[`ALIYUN_ESA_ACCOUNT_NAME_${accountIndex}`] || `Account ${accountIndex}`,
+      accessKeyId: process.env[`ALIYUN_ESA_ACCESS_KEY_ID_${accountIndex}`],
+      accessKeySecret: process.env[`ALIYUN_ESA_ACCESS_KEY_SECRET_${accountIndex}`],
+      region: process.env[`ALIYUN_ESA_REGION_${accountIndex}`] || 'cn'
+    });
+    accountIndex++;
+  }
+
+  if (config.accounts.length === 0) {
+    try {
+      const fileConfig = yaml.load(fs.readFileSync(new URL('./aliyun.yml', import.meta.url)));
+      if (fileConfig && fileConfig.accounts) {
+        fileConfig.accounts = fileConfig.accounts.filter(acc => {
+          return acc.accessKeyId && acc.accessKeyId !== 'YOUR_ACCESS_KEY_ID';
+        });
+        config.accounts = fileConfig.accounts;
+      }
+      
+      if (fileConfig) {
+        if (fileConfig.enabledZones) {
+          config.enabledZones = fileConfig.enabledZones;
+        }
+        if (fileConfig.disabledZones) {
+          config.disabledZones = fileConfig.disabledZones;
+        }
+      }
+    } catch (e) {
+      console.log('No aliyun.yml found, skipping Aliyun ESA config');
+    }
+  }
+
+  return config;
 }
