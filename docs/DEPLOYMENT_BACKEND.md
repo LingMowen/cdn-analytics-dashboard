@@ -9,6 +9,18 @@
 - [PM2 部署](#pm2-部署)
 - [Cloudflare Workers 部署](#cloudflare-workers-部署)
 - [腾讯云云函数部署](#腾讯云云函数部署)
+- [GitHub Actions CI/CD](#github-actions-cicd)
+
+## 关于 GitHub 部署后端
+
+**GitHub 本身不提供 Node.js 后端托管服务**（GitHub Pages 只支持静态网站）。
+
+但是可以通过以下方式使用 GitHub 部署后端：
+
+1. **使用 GitHub Actions 构建 Docker 镜像** → 部署到自己的服务器
+2. **使用 GitHub Actions 构建后端** → 部署到支持的 Serverless 平台
+
+详细说明见 [GitHub Actions CI/CD](#github-actions-cicd) 部分。
 
 ## 准备工作
 
@@ -308,6 +320,47 @@ https://service-xxx-xxx.ap-guangzhou.apigateway.com
 | ALIYUN_ESA_ACCESS_KEY_ID | 阿里云 AccessKeyId |
 | ALIYUN_ESA_ACCESS_KEY_SECRET | 阿里云 AccessKeySecret |
 | ALIYUN_ESA_REGION | cn=国内版, international=国际版 |
+
+## GitHub Actions CI/CD
+
+项目已配置 GitHub Actions 工作流 (`.github/workflows/backend.yml`)，支持自动化构建和部署。
+
+### 功能
+
+1. **自动构建**: 当推送代码到 `backend/` 目录时自动运行构建
+2. **Docker 镜像构建**: 支持手动触发构建并推送到 Docker Hub
+
+### 触发方式
+
+1. **自动构建**: 推送代码到 `backend/` 目录自动触发
+2. **手动部署**: 进入仓库 → Actions → Backend CI/CD → Run workflow
+
+### 配置 secrets
+
+在 GitHub 仓库设置中添加：
+
+- `DOCKER_USERNAME`: Docker Hub 用户名
+- `DOCKER_PASSWORD`: Docker Hub 密码
+
+### 部署流程
+
+```mermaid
+graph LR
+    A[Push to backend/] --> B[GitHub Actions]
+    B --> C[Install Dependencies]
+    C --> D[Run Tests]
+    D --> E[Build & Verify]
+    E --> F[Build Docker Image]
+    F --> G[Push to Docker Hub]
+    G --> H[Deploy to Server]
+```
+
+### 自托管 Runner
+
+如需部署到自己的服务器，可以配置自托管 Runner：
+
+1. 在仓库设置中添加 self-hosted runner
+2. 修改工作流使用 `runs-on: self-hosted`
 
 ## 常见问题
 

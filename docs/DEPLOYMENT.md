@@ -31,6 +31,9 @@ Unified Monitor 的详细部署指南。
 | [PM2](DEPLOYMENT_BACKEND.md#pm2-部署) | ⭐⭐ | 生产环境 |
 | [Cloudflare Workers](DEPLOYMENT_BACKEND.md#cloudflare-workers-部署) | ⭐⭐⭐ | Serverless |
 | [腾讯云云函数](DEPLOYMENT_BACKEND.md#腾讯云云函数部署) | ⭐⭐⭐ | 国内Serverless |
+| [GitHub Actions CI/CD](DEPLOYMENT_BACKEND.md#github-actions-cicd) | ⭐⭐ | 自动化构建部署 |
+
+**注意**: GitHub 本身不提供 Node.js 后端托管服务，可通过 GitHub Actions 自动化构建后部署到其他平台。
 
 ## 快速开始
 
