@@ -100,6 +100,7 @@ async function initialize() {
     logger.info(_(`语言: ${CONFIG.server.isEn ? 'English' : '中文'}`, `Language: ${CONFIG.server.isEn ? 'English' : 'Chinese'}`));
     logger.info(_(`Cloudflare配置加载成功: ${CONFIG.cloudflare.accounts.length} 个账户`, `Cloudflare config loaded: ${CONFIG.cloudflare.accounts.length} accounts`));
     logger.info(_(`EdgeOne配置加载成功: ${CONFIG.edgeone.accounts.length} 个账户`, `EdgeOne config loaded: ${CONFIG.edgeone.accounts.length} accounts`));
+    logger.info(_(`阿里云ESA配置加载成功: ${CONFIG.aliyun.accounts.length} 个账户`, `Aliyun ESA config loaded: ${CONFIG.aliyun.accounts.length} accounts`));
   } catch (error) {
     logger.error(_('[初始化失败]', '[Initialization Failed]'), error.message);
   }

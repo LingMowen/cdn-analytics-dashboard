@@ -70,6 +70,12 @@ EO_SECRET_KEY=your_secret_key
 EO_REGION=ap-guangzhou
 EO_ACCOUNT_NAME=Main Account
 
+# 阿里云 ESA 配置
+ALIYUN_ESA_ACCESS_KEY_ID=your_access_key_id
+ALIYUN_ESA_ACCESS_KEY_SECRET=your_access_key_secret
+ALIYUN_ESA_REGION=cn
+ALIYUN_ESA_ACCOUNT_NAME=Main Account
+
 # 站点配置
 SITE_NAME=Unified Monitor Dashboard
 SITE_ICON=https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0
@@ -444,6 +450,15 @@ sudo systemctl status unified-monitor
 | EO_REGION | 否 | 区域（默认 ap-guangzhou） |
 | EO_ACCOUNT_NAME | 否 | 账户显示名称 |
 
+#### 阿里云 ESA 配置
+
+| 变量 | 必填 | 说明 |
+|------|------|------|
+| ALIYUN_ESA_ACCESS_KEY_ID | 是 | 阿里云 AccessKeyId |
+| ALIYUN_ESA_ACCESS_KEY_SECRET | 是 | 阿里云 AccessKeySecret |
+| ALIYUN_ESA_REGION | 否 | 区域（cn=国内版, international=国际版，默认 cn） |
+| ALIYUN_ESA_ACCOUNT_NAME | 否 | 账户显示名称 |
+
 #### 缓存配置
 
 | 变量 | 默认值 | 说明 |
@@ -494,6 +509,31 @@ accounts:
     secretId: "YOUR_SECRET_ID_2"
     secretKey: "YOUR_SECRET_KEY_2"
     region: "ap-guangzhou"
+```
+
+#### 阿里云 ESA 配置文件
+
+文件位置: `backend/src/config/aliyun.yml`
+
+```yaml
+accounts:
+  - name: "主账号"
+    accessKeyId: "YOUR_ACCESS_KEY_ID"
+    accessKeySecret: "YOUR_ACCESS_KEY_SECRET"
+    region: "cn"  # cn=国内版, international=国际版
+  - name: "副账号"
+    accessKeyId: "YOUR_ACCESS_KEY_ID_2"
+    accessKeySecret: "YOUR_ACCESS_KEY_SECRET_2"
+    region: "international"
+
+# 可选：配置站点显示
+enabledZones:
+  - "example.com"
+  - "cdn.example.com"
+
+# 可选：禁用某些站点
+disabledZones:
+  - "test.example.com"
 ```
 
 ## 故障排查

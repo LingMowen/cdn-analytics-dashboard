@@ -2,6 +2,7 @@ import express from 'express';
 import cloudflareRouter from './cloudflare.js';
 import edgeoneRouter from './edgeone.js';
 import { registerAliyunRoutes } from './aliyun.js';
+import { loadAliyunESAConfig } from '../config/index.js';
 
 const router = express.Router();
 
@@ -18,7 +19,6 @@ router.get('/status', (req, res) => {
   const platforms = ['cloudflare', 'edgeone'];
   
   try {
-    const { loadAliyunESAConfig } = await import('../config/index.js');
     const aliyunConfig = loadAliyunESAConfig();
     if (aliyunConfig.accounts.length > 0) {
       platforms.push('aliyun');
