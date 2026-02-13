@@ -4,7 +4,7 @@
 
 ## 概述
 
-Unified Monitor API 提供了 Cloudflare 和 EdgeOne 两个平台的监控数据接口。所有接口均使用 RESTful 风格，返回 JSON 格式数据。
+Unified Monitor API 提供了 Cloudflare、EdgeOne 和阿里云 ESA 三个平台的监控数据接口。所有接口均使用 RESTful 风格，返回 JSON 格式数据。
 
 ## 基础信息
 
@@ -589,6 +589,143 @@ GET /edgeone/pages/cloud-function-requests?zoneId=zone_id_1&startTime=2024-01-01
     {
       "timestamp": "2024-01-01T01:00:00Z",
       "requests": 150
+    }
+  ]
+}
+```
+
+## 阿里云 ESA 接口
+
+### 获取配置
+
+获取阿里云 ESA 配置信息。
+
+**请求**
+
+```
+GET /api/aliyun/config
+```
+
+**响应**
+
+```json
+{
+  "accounts": [
+    {
+      "name": "主账号",
+      "region": "cn"
+    }
+  ],
+  "enabledZones": ["example.com"],
+  "disabledZones": [],
+  "hasConfig": true
+}
+```
+
+### 获取 Zone 列表
+
+获取阿里云 ESA 域名列表。
+
+**请求**
+
+```
+GET /api/aliyun/zones
+```
+
+**响应**
+
+```json
+{
+  "zones": [
+    {
+      "id": "esa-xxx",
+      "name": "example.com",
+      "domain": "example.com",
+      "region": "cn",
+      "status": "active",
+      "accountName": "主账号",
+      "platform": "aliyun"
+    }
+  ]
+}
+```
+
+### 获取分析数据
+
+获取阿里云 ESA 流量分析数据。
+
+**请求**
+
+```
+GET /api/aliyun/analytics?startTime=2024-01-01T00:00:00Z&endTime=2024-01-02T00:00:00Z&interval=hour
+```
+
+**参数**
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| startTime | 否 | 开始时间 (ISO 8601) |
+| endTime | 否 | 结束时间 (ISO 8601) |
+| interval | 否 | 粒度 (5min/hour/day) |
+| accountName | 否 | 账户名称 |
+
+**响应**
+
+```json
+{
+  "analytics": [
+    {
+      "zone": "example.com",
+      "domain": "example.com",
+      "accountName": "主账号",
+      "platform": "aliyun",
+      "bandwidth": {
+        "peak": 100.5,
+        "total": 500.2,
+        "unit": "Mbps",
+        "trend": [...]
+      },
+      "traffic": {
+        "total": 100.5,
+        "unit": "GB",
+        "trend": [...]
+      },
+      "requests": {
+        "total": 50000,
+        "unit": "requests",
+        "trend": [...]
+      }
+    }
+  ]
+}
+```
+
+### 获取仪表盘数据
+
+获取阿里云 ESA 仪表盘概览数据。
+
+**请求**
+
+```
+GET /api/aliyun/dashboard?zoneId=esa-xxx
+```
+
+**参数**
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| zoneId | 否 | Zone ID，不填则返回所有 |
+
+**响应**
+
+```json
+{
+  "dashboard": [
+    {
+      "domain": "example.com",
+      "traffic": {...},
+      "requests": {...},
+      "timestamp": "2024-01-01T12:00:00Z"
     }
   ]
 }
