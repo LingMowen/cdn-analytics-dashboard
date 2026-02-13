@@ -1,6 +1,6 @@
 # Cloudflare & EdgeOne 监控系统整合文档
 
-<img src="icon-integration.svg" alt="Integration" width="48" height="48" align="right"/>
+<img src="images/icon-integration.svg" alt="Integration" width="48" height="48" align="right"/>
 
 ## 项目概述
 

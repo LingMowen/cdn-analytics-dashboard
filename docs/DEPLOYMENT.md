@@ -1,6 +1,6 @@
 # 部署文档
 
-<img src="icon-deployment.svg" alt="Deployment" width="48" height="48" align="right"/>
+<img src="images/icon-deployment.svg" alt="Deployment" width="48" height="48" align="right"/>
 
 Unified Monitor 的详细部署指南。
 

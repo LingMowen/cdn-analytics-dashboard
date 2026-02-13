@@ -1,6 +1,6 @@
 # 测试报告
 
-<img src="icon-test.svg" alt="Test Report" width="48" height="48" align="right"/>
+<img src="images/icon-test.svg" alt="Test Report" width="48" height="48" align="right"/>
 
 ## 项目概述
 

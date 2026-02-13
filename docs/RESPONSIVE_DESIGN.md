@@ -1,6 +1,6 @@
 # 前端多端适配实现文档
 
-<img src="icon-responsive.svg" alt="Responsive Design" width="48" height="48" align="right"/>
+<img src="images/icon-responsive.svg" alt="Responsive Design" width="48" height="48" align="right"/>
 
 ## 概述
 

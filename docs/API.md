@@ -1,6 +1,6 @@
 # API 文档
 
-<img src="icon-api.svg" alt="API" width="48" height="48" align="right"/>
+<img src="images/icon-api.svg" alt="API" width="48" height="48" align="right"/>
 
 ## 概述
 

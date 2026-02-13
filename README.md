@@ -2,7 +2,7 @@
 
 # Unified Monitor - Cloudflare & EdgeOne 统一监控仪表盘
 
-  <img src="docs/icon.svg" alt="Unified Monitor" width="128" height="128"/>
+  <img src="docs/images/icon.svg" alt="Unified Monitor" width="128" height="128"/>
 
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://hub.docker.com/r/lingmowen/cdn-analytics-dashboard)
@@ -16,7 +16,7 @@
 
 ![EdgeOne 监控仪表盘预览](screenshots/dashboard-preview.png)
 
-## <img src="docs/icon-features.svg" width="32"> 功能特性
+## <img src="docs/images/icon-features.svg" width="32"> 功能特性
 
 ### 核心功能
 
@@ -63,7 +63,7 @@
 - 多账户支持
 - 多区域配置
 
-## <img src="docs/icon-tech.svg" width="32"> 技术栈
+## <img src="docs/images/icon-tech.svg" width="32"> 技术栈
 
 ### 后端
 
@@ -89,7 +89,7 @@
 - **静态托管**: EdgeOne Pages / Cloudflare Pages / GitHub Pages / Vercel / Netlify
 - **Serverless**: EdgeOne 云函数 / Cloudflare Workers
 
-## <img src="docs/icon-start.svg" width="32"> 快速开始
+## <img src="docs/images/icon-start.svg" width="32"> 快速开始
 
 ### 使用 EdgeOne Pages 部署（推荐）
 
@@ -341,7 +341,7 @@ npm run dev
 - 前端: http://localhost:3000
 - 后端: http://localhost:4000
 
-## <img src="docs/icon-config.svg" width="32"> 配置说明
+## <img src="docs/images/icon-config.svg" width="32"> 配置说明
 
 ### Cloudflare 配置
 
@@ -408,7 +408,7 @@ accounts:
 - [国内版](https://console.cloud.tencent.com/cam/user/userType)
 - [海外版](https://console.tencentcloud.com/cam/user/userType)
 
-## <img src="docs/icon-structure.svg" width="32"> 项目结构
+## <img src="docs/images/icon-structure.svg" width="32"> 项目结构
 
 ```
 unified-monitor/
@@ -482,7 +482,7 @@ unified-monitor/
 - `GET /api/edgeone/pages/build-count` - 获取 Pages 构建次数
 - `GET /api/edgeone/pages/cloud-function-requests` - 获取 Pages 云函数请求
 
-## <img src="docs/icon-docs.svg" width="32"> 文档
+## <img src="docs/images/icon-docs.svg" width="32"> 文档
 
 - [整合文档](docs/INTEGRATION.md) - 详细的整合方案和架构设计
 - [API 文档](docs/API.md) - 完整的 API 接口文档
@@ -491,12 +491,12 @@ unified-monitor/
 - [后端部署教程](docs/DEPLOYMENT_BACKEND.md) - Node.js / Docker / PM2 / Cloudflare Workers / 腾讯云云函数
 - [配置指南](docs/CONFIG.md) - 环境变量和配置文件详解
 
-## <img src="docs/icon-update.svg" width="32"> 数据更新频率
+## <img src="docs/images/icon-update.svg" width="32"> 数据更新频率
 
 - **Cloudflare 数据**: 每 2 小时更新一次
 - **EdgeOne 数据**: 实时查询（带 5 分钟缓存）
 
-## <img src="docs/icon-env.svg" width="32"> 环境变量
+## <img src="docs/images/icon-env.svg" width="32"> 环境变量
 
 完整的配置说明请查看 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
@@ -553,7 +553,7 @@ docker-compose up -d
 
 详细的部署指南请查看 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
-## <img src="docs/icon-dev.svg" width="32"> 开发
+## <img src="docs/images/icon-dev.svg" width="32"> 开发
 
 ### 后端开发
 
@@ -571,7 +571,7 @@ npm install
 npm run dev
 ```
 
-## <img src="docs/icon-test2.svg" width="32"> 测试
+## <img src="docs/images/icon-test2.svg" width="32"> 测试
 
 ```bash
 # 单元测试
