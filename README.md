@@ -486,7 +486,10 @@ unified-monitor/
 
 - [整合文档](docs/INTEGRATION.md) - 详细的整合方案和架构设计
 - [API 文档](docs/API.md) - 完整的 API 接口文档
-- [部署文档](docs/DEPLOYMENT.md) - 详细的部署指南
+- [部署文档](docs/DEPLOYMENT.md) - 部署指南入口
+- [前端部署教程](docs/DEPLOYMENT_FRONTEND.md) - GitHub Pages / Cloudflare Pages / EdgeOne Pages / Vercel / Netlify
+- [后端部署教程](docs/DEPLOYMENT_BACKEND.md) - Node.js / Docker / PM2 / Cloudflare Workers / 腾讯云云函数
+- [配置指南](docs/CONFIG.md) - 环境变量和配置文件详解
 
 ## <img src="docs/icon-update.svg" width="32"> 数据更新频率
 
