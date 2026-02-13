@@ -28,7 +28,7 @@ export default function CFDashboard() {
       console.error('API Error:', error);
       setError(t('loadError'));
     } finally {
-      setTimeout(() => setLoading(false), 300);
+      setLoading(false);
     }
   };
 
