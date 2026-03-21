@@ -1,0 +1,13 @@
+accounts:
+  - name: "主账号"
+    token: "YOUR_CF_TOKEN_1"
+    zones:
+      - zone_id: "ZONE_ID_1"
+        domain: "example.com"
+      - zone_id: "ZONE_ID_2"
+        domain: "cdn.example.com"
+  - name: "副账号"
+    token: "YOUR_CF_TOKEN_2"
+    zones:
+      - zone_id: "ZONE_ID_3"
+        domain: "foo.net"

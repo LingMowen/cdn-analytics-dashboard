@@ -91,195 +91,9 @@
 
 ## <img src="docs/images/icon-start.svg" width="32"> 快速开始
 
-### 使用 EdgeOne Pages 部署（推荐）
+### Docker 部署（推荐）
 
-支持前端静态部署到 EdgeOne Pages。
-
-1. **克隆项目**
-
-```bash
-git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
-cd cdn-analytics-dashboard
-```
-
-2. **配置后端 API 地址**
-
-编辑 `frontend/.env.production` 文件，配置后端 API 地址：
-
-```env
-VITE_API_TARGET=https://your-backend-domain.com
-```
-
-3. **在 EdgeOne Pages 创建项目**
-
-- 登录 [EdgeOne Pages 控制台](https://console.cloud.tencent.com/tencentcloud/pages)
-- 连接 GitHub/GitLab 仓库
-- 选择 `frontend` 目录作为构建目录
-- 构建命令: `npm run build`
-- 输出目录: `dist`
-
-4. **配置环境变量**
-
-在 EdgeOne Pages 项目设置中添加:
-- `VITE_API_TARGET`: 后端服务地址
-
-### 使用 Cloudflare Pages 部署
-
-支持前端静态部署到 Cloudflare Pages。
-
-1. **推送代码到 GitHub**
-
-将代码推送到 GitHub 仓库。
-
-2. **配置 Cloudflare**
-
-- 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
-- 进入 Pages 项目
-- 连接 GitHub 仓库
-- 选择 `frontend` 目录
-- 构建命令: `npm run build`
-- 输出目录: `dist`
-
-3. **配置环境变量**
-
-在 Pages 设置中添加:
-- `VITE_API_TARGET`: 后端服务地址
-
-4. **配置 secrets**
-
-在 GitHub 仓库设置中添加:
-- `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare 账户 ID
-
-5. **自动部署**
-
-推送代码后，GitHub Actions 会自动部署到 Cloudflare Pages。
-
-### 使用 GitHub Pages 部署
-
-支持前端静态部署到 GitHub Pages。
-
-1. **启用 GitHub Pages**
-
-- 进入仓库设置
-- 找到 Pages 选项
-- 选择 GitHub Actions 作为部署源
-
-2. **配置环境变量**
-
-在 GitHub 仓库设置中添加:
-- `VITE_API_TARGET`: 后端服务地址
-
-3. **自动部署**
-
-推送代码后，GitHub Actions 会自动部署到 GitHub Pages。
-
-### 使用 EdgeOne 云函数部署后端
-
-后端支持部署到腾讯云 EdgeOne 云函数（Serverless）。
-
-1. **克隆项目**
-
-```bash
-git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
-cd cdn-analytics-dashboard
-```
-
-2. **配置环境变量**
-
-复制环境变量示例文件并配置：
-
-```bash
-cd backend
-cp .env.example .env
-# 编辑配置文件，添加您的 API 密钥
-```
-
-3. **安装 Serverless Framework**
-
-```bash
-npm install -g serverless
-```
-
-4. **部署到腾讯云**
-
-```bash
-serverless deploy
-```
-
-或者使用 Serverless CLI：
-
-```bash
-cd backend
-serverless deploy
-```
-
-5. **获取 API 地址**
-
-部署完成后，Serverless 会输出 API 网关地址，格式类似：
-```
-apiGateway:
-  url: https://service-xxx-xxx.ap-guangzhou.apigateway.com
-```
-
-6. **配置前端环境变量**
-
-将获取到的 API 地址配置到前端：
-```
-VITE_API_TARGET=https://service-xxx-xxx.ap-guangzhou.apigateway.com
-```
-
-### 使用 Cloudflare Workers 部署后端
-
-后端支持部署到 Cloudflare Workers（Serverless）。
-
-1. **克隆项目**
-
-```bash
-git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
-cd cdn-analytics-dashboard
-```
-
-2. **配置环境变量**
-
-复制环境变量示例文件并配置：
-
-```bash
-cd backend
-cp .env.example .env
-# 编辑配置文件，添加您的 API 密钥
-```
-
-3. **安装 Wrangler CLI**
-
-```bash
-npm install -g wrangler
-```
-
-4. **部署到 Cloudflare Workers**
-
-```bash
-cd backend
-wrangler deploy
-```
-
-5. **获取 API 地址**
-
-部署完成后，Wrangler 会输出 Workers 地址，格式类似：
-```
-https://unified-monitor-backend.your-account.workers.dev
-```
-
-6. **配置前端环境变量**
-
-将获取到的 API 地址配置到前端：
-```
-VITE_API_TARGET=https://unified-monitor-backend.your-account.workers.dev
-```
-
-### 使用 Docker Compose（推荐）
-
-这是最快速、最简单的部署方式。
+使用 Docker Compose 一键部署前后端结合版本。
 
 1. **克隆项目**
 
@@ -293,9 +107,7 @@ cd cdn-analytics-dashboard
 ```bash
 cd docker
 cp .env.example .env
-# 编辑配置文件
-# Linux/macOS: nano .env
-# Windows: notepad .env 或 code .env
+# 编辑配置文件，添加您的 API 密钥
 ```
 
 3. **启动服务**
@@ -306,9 +118,11 @@ docker-compose up -d
 
 4. **访问应用**
 
-打开浏览器访问 `http://localhost` 或 `http://your-server-ip`
+打开浏览器访问 `http://localhost`
 
-### 本地开发
+### Fullstack 版本（前后端结合）
+
+前后端结合版本，将前端构建产物直接托管在后端服务中，只需启动一个服务即可访问完整应用。
 
 1. **克隆项目**
 
@@ -317,29 +131,278 @@ git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
 cd cdn-analytics-dashboard
 ```
 
-2. **安装后端依赖**
+2. **安装依赖**
 
 ```bash
-cd backend
+cd fullstack
 npm install
-cp .env.example .env
-# 编辑配置文件
-# Linux/macOS: nano .env
-# Windows: notepad .env 或 code .env
-npm run dev
 ```
 
-3. **安装前端依赖**
+3. **配置环境变量**
 
 ```bash
-cd frontend
-npm install
-npm run dev
+cp .env.example .env
+# 编辑配置文件，添加您的 API 密钥
+```
 
-4. **访问应用**
+4. **构建前端**
 
-- 前端: http://localhost:3000
-- 后端: http://localhost:4000
+```bash
+npm run build
+```
+
+5. **启动服务**
+
+```bash
+npm start
+```
+
+6. **访问应用**
+
+打开浏览器访问 `http://localhost:4000`
+
+### 前端 + 后端分离部署
+
+如需前后端分离部署，请分别参考下方各平台的部署教程。
+
+## <img src="docs/images/icon-deploy.svg" width="32"> 部署教程
+
+### <img src="docs/images/icon-deployment.svg" width="24"> 腾讯云 EdgeOne 部署
+
+#### 方案一：EdgeOne Pages + EdgeOne 云函数（推荐）
+
+**前端部署到 EdgeOne Pages，后端部署到 EdgeOne 云函数**
+
+1. **部署后端到 EdgeOne 云函数**
+
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   # 编辑配置文件，添加您的 API 密钥
+   npm install -g serverless
+   serverless deploy
+   ```
+
+2. **获取后端 API 地址**
+
+   部署完成后会输出 API 网关地址，格式如：
+   ```
+   https://service-xxx-xxx.ap-guangzhou.apigateway.com
+   ```
+
+3. **部署前端到 EdgeOne Pages**
+
+   - 登录 [EdgeOne Pages 控制台](https://console.cloud.tencent.com/tencentcloud/pages)
+   - 连接 GitHub 仓库
+   - 选择 `frontend` 目录作为构建目录
+   - 构建命令: `npm run build`
+   - 输出目录: `dist`
+
+4. **配置前端环境变量**
+
+   在 EdgeOne Pages 项目设置中添加:
+   ```env
+   VITE_API_TARGET=https://service-xxx-xxx.ap-guangzhou.apigateway.com
+   ```
+
+#### 方案二：Fullstack 版本部署到 EdgeOne 云函数
+
+1. **克隆并配置项目**
+
+   ```bash
+   git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+   cd cdn-analytics-dashboard/fullstack
+   npm install
+   cp .env.example .env
+   # 编辑配置文件，添加您的 API 密钥
+   ```
+
+2. **构建前端**
+
+   ```bash
+   npm run build
+   ```
+
+3. **部署到 EdgeOne 云函数**
+
+   ```bash
+   npm install -g serverless
+   serverless deploy
+   ```
+
+### <img src="docs/images/icon-deployment.svg" width="24"> Cloudflare 部署
+
+#### 方案一：Cloudflare Pages + Cloudflare Workers
+
+**前端部署到 Cloudflare Pages，后端部署到 Cloudflare Workers**
+
+1. **推送代码到 GitHub**
+
+   ```bash
+   git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+   cd cdn-analytics-dashboard
+   git push origin main
+   ```
+
+2. **部署后端到 Cloudflare Workers**
+
+   - 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
+   - 进入 Workers & Pages
+   - 创建新 Workers 项目
+   - 连接 GitHub 仓库，选择 `backend` 目录
+   - 配置环境变量:
+     - `CLOUDFLARE_API_TOKEN`
+     - `CLOUDFLARE_ACCOUNT_ID`
+   - 部署后会获得 Workers 地址
+
+3. **部署前端到 Cloudflare Pages**
+
+   - 在同一个 Workers & Pages 控制台
+   - 创建新 Pages 项目
+   - 连接 GitHub 仓库，选择 `frontend` 目录
+   - 构建命令: `npm run build`
+   - 输出目录: `dist`
+   - 配置环境变量:
+     - `VITE_API_TARGET`: 你的 Workers 地址
+
+4. **自动部署**
+
+   推送代码后，GitHub Actions 会自动部署。
+
+#### 方案二：Fullstack 版本部署到 Cloudflare Workers
+
+1. **克隆并配置项目**
+
+   ```bash
+   git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+   cd cdn-analytics-dashboard/fullstack
+   npm install
+   cp .env.example .env
+   # 编辑配置文件，添加您的 API 密钥
+   ```
+
+2. **构建前端**
+
+   ```bash
+   npm run build
+   ```
+
+3. **部署到 Cloudflare Workers**
+
+   ```bash
+   npm install -g wrangler
+   wrangler deploy
+   ```
+
+### <img src="docs/images/icon-deployment.svg" width="24"> GitHub Pages 部署
+
+#### 前端部署到 GitHub Pages + 后端部署到其他平台
+
+1. **推送代码到 GitHub**
+
+   ```bash
+   git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+   cd cdn-analytics-dashboard
+   git push origin main
+   ```
+
+2. **启用 GitHub Pages**
+
+   - 进入仓库设置
+   - 找到 Pages 选项
+   - 选择 GitHub Actions 作为部署源
+
+3. **部署后端（选择任一方案）**
+
+   - **方案A：使用 Railway**
+     - 登录 [Railway](https://railway.app)
+     - 连接 GitHub 仓库
+     - 选择 `backend` 目录
+     - 配置环境变量
+
+   - **方案B：使用 Render**
+     - 登录 [Render](https://render.com)
+     - 创建新的 Web Service
+     - 连接 GitHub 仓库，选择 `backend` 目录
+     - 配置环境变量
+
+   - **方案C：使用 Fly.io**
+     - 安装 Fly CLI
+     - `cd backend && fly launch && fly deploy`
+     - 配置环境变量
+
+4. **获取后端 API 地址**
+
+   根据您选择的后端托管平台获取 API 地址。
+
+5. **配置前端环境变量**
+
+   在 GitHub 仓库 Settings > Secrets 中添加:
+   ```env
+   VITE_API_TARGET=https://your-backend-api.com
+   ```
+
+6. **自动部署**
+
+   推送代码后，GitHub Actions 会自动构建并部署前端。
+
+### <img src="docs/images/icon-deployment.svg" width="24"> 阿里云 ESA 部署
+
+#### 使用阿里云函数计算 + 对象存储
+
+1. **克隆并配置项目**
+
+   ```bash
+   git clone https://github.com/LingMowen/cdn-analytics-dashboard.git
+   cd cdn-analytics-dashboard
+   ```
+
+2. **部署后端到阿里云函数计算**
+
+   - 登录阿里云函数计算控制台
+   - 创建函数，选择 `backend` 目录
+   - 配置环境变量:
+     - `ALIYUN_ESA_ACCESS_KEY_ID`
+     - `ALIYUN_ESA_ACCESS_KEY_SECRET`
+     - `ALIYUN_ESA_REGION`
+   - 获取函数计算公网访问地址
+
+3. **部署前端到阿里云对象存储**
+
+   - 登录阿里云对象存储 OSS 控制台
+   - 创建 Bucket，开启静态网站托管
+   - 使用 OSSCLI 或手动上传 `frontend/dist` 内容
+   - 配置自定义域名（可选）
+
+4. **配置前端环境变量**
+
+   在 OSS 托管的 `dist` 目录中添加 `.env.production`:
+   ```env
+   VITE_API_TARGET=https://your-fc-api地址.com
+   ```
+
+#### Fullstack 版本部署到阿里云
+
+1. **克隆并配置项目**
+
+   ```bash
+   cd cdn-analytics-dashboard/fullstack
+   npm install
+   cp .env.example .env
+   # 编辑配置文件，添加您的 API 密钥
+   ```
+
+2. **构建前端**
+
+   ```bash
+   npm run build
+   ```
+
+3. **部署到阿里云函数计算**
+
+   - 使用 Serverless Devs 工具
+   - `s deploy`
 
 ## <img src="docs/images/icon-config.svg" width="32"> 配置说明
 
@@ -434,6 +497,15 @@ unified-monitor/
 │   ├── public/
 │   ├── package.json
 │   └── vite.config.js
+├── fullstack/                  # 前后端结合版本
+│   ├── src/
+│   │   ├── backend/           # 后端源码
+│   │   │   ├── public/        # 前端构建产物托管目录
+│   │   │   └── ...
+│   │   └── frontend/          # 前端源码
+│   ├── package.json
+│   ├── vite.config.js
+│   └── .env.example
 ├── docker/                     # Docker 配置
 │   ├── Dockerfile
 │   ├── docker-compose.yml
@@ -620,6 +692,19 @@ npm run test:e2e
 
 
 ## 更新日志
+
+### v1.6.0 (2026-03-21)
+- ✅ **Fullstack 版本**：新增 `fullstack` 目录，存放前后端结合版本
+  - 前端构建产物直接托管在后端服务的 `/public` 目录
+  - 只需启动一个服务 (端口 4000) 即可访问完整应用
+  - 支持 `npm run build` 构建前端，`npm start` 启动服务
+- ✅ **重新设计部署教程**：按部署平台组织，而非按前后端分离
+  - 腾讯云 EdgeOne 部署指南
+  - Cloudflare 部署指南
+  - GitHub Pages 部署指南
+  - 阿里云 ESA 部署指南
+  - 每个平台均提供独立版本和 Fullstack 版本部署方案
+- ✅ **环境变量迁移**：Fullstack 版本支持完整的 .env 配置
 
 ### v1.5.0 (2026-02-11)
 - ✅ **TOP 分析板块**: EdgeOne 仪表板新增 TOP 分析独立板块
