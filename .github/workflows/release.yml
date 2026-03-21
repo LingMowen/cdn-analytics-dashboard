@@ -1,0 +1,104 @@
+name: Build and Upload Release Assets
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-fullstack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Copy Frontend Build to Fullstack
+        run: |
+          cp -r frontend/dist fullstack/src/backend/public
+
+      - name: Create Fullstack Package
+        run: |
+          cd fullstack
+          tar -czvf fullstack.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            src/ \
+            package.json \
+            package-lock.json \
+            .env.example \
+            vite.config.js \
+            tailwind.config.js \
+            postcss.config.js \
+            index.html \
+            public/
+
+      - name: Upload Fullstack Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./fullstack/fullstack.tar.gz
+          asset_name: unified-monitor-fullstack-v${{ github.event.release.tag_name }}.tar.gz
+          asset_content_type: application/gzip
+
+  build-separated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Create Separated Package
+        run: |
+          tar -czvf separated.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='backend/node_modules' \
+            --exclude='frontend/node_modules' \
+            backend/ \
+            frontend/ \
+            docker/ \
+            README.md \
+            LICENSE \
+            .gitignore
+
+      - name: Upload Separated Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./separated.tar.gz
+          asset_name: unified-monitor-separated-v${{ github.event.release.tag_name }}.tar.gz
+          asset_content_type: application/gzip
